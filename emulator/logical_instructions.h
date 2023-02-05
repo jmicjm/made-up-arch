@@ -8,15 +8,15 @@ namespace emulator
 {
     struct [[gnu::may_alias]] Logical_instruction
     {
-        uint64_t opcode : 8 = Opcode::invalid;
-        uint64_t r1 : 4;
-        uint64_t r2 : 4;
+        Instruction_t opcode : opcode_size = Opcode::invalid;
+        Instruction_t r1 : register_size;
+        Instruction_t r2 : register_size;
     };
 
     struct [[gnu::may_alias]] Logical_inv_instruction
     {
-        uint64_t opcode : 8 = Opcode::invl;
-        uint64_t r : 4;
+        Instruction_t opcode : opcode_size = Opcode::invl;
+        Instruction_t r : register_size;
     };
 
     template<typename op>

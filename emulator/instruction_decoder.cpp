@@ -4,15 +4,15 @@
 
 emulator::Instruction_decoder::Instruction_decoder() : instructions(256, nullptr)
 {
-    instructions[static_cast<uint8_t>(Opcode::add)] = add;
-    instructions[static_cast<uint8_t>(Opcode::sub)] = sub;
-    instructions[static_cast<uint8_t>(Opcode::mov)] = mov;
-    instructions[static_cast<uint8_t>(Opcode::ldr)] = ldr;
-    instructions[static_cast<uint8_t>(Opcode::str)] = str;
-    instructions[static_cast<uint8_t>(Opcode::andl)] = andl;
-    instructions[static_cast<uint8_t>(Opcode::orl)] = orl;
-    instructions[static_cast<uint8_t>(Opcode::xorl)] = xorl;
-    instructions[static_cast<uint8_t>(Opcode::invl)] = invl;
+    instructions[Opcode::add] = add;
+    instructions[Opcode::sub] = sub;
+    instructions[Opcode::mov] = mov;
+    instructions[Opcode::ldr] = ldr;
+    instructions[Opcode::str] = str;
+    instructions[Opcode::andl] = andl;
+    instructions[Opcode::orl] = orl;
+    instructions[Opcode::xorl] = xorl;
+    instructions[Opcode::invl] = invl;
 }
 
 auto emulator::Instruction_decoder::decode(Instruction_t instruction) -> Instruction_f*

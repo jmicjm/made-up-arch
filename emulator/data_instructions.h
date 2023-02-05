@@ -7,18 +7,18 @@ namespace emulator
 {
     struct [[gnu::may_alias]] Mov_instruction
     {
-        uint64_t opcode : 8 = Opcode::mov;
-        uint64_t imm_arg : 1 = false;
-        uint64_t rdst : 4;
-        uint64_t rsrc : 4;
+        Instruction_t opcode : opcode_size = Opcode::mov;
+        Instruction_t imm_arg : 1 = false;
+        Instruction_t rdst : register_size;
+        Instruction_t rsrc : register_size;
     };
 
     struct [[gnu::may_alias]] Mov_imm_instruction
     {
-        uint64_t opcode : 8 = Opcode::mov;
-        uint64_t imm_arg : 1 = true;
-        uint64_t rdst : 4;
-        uint64_t imm : 51;
+        Instruction_t opcode : opcode_size = Opcode::mov;
+        Instruction_t imm_arg : 1 = true;
+        Instruction_t rdst : register_size;
+        Instruction_t imm : 19;
     };
 
     void mov(Processor_state& state, Instruction_t instruction);
@@ -26,22 +26,22 @@ namespace emulator
 
     struct [[gnu::may_alias]] Ldr_instruction
     {
-        uint64_t opcode : 8 = Opcode::ldr;
-        uint64_t size : 2 = Data_type::octobyte;
-        uint64_t rdst : 4; 
-        uint64_t rbase : 4;
-        uint64_t off : 46;
+        Instruction_t opcode : opcode_size = Opcode::ldr;
+        Instruction_t size : data_type_size = Data_type::octobyte;
+        Instruction_t rdst : register_size;
+        Instruction_t rbase : register_size;
+        Instruction_t off : 14;
     };
 
     void ldr(Processor_state& state, Instruction_t instruction);
 
     struct [[gnu::may_alias]] Str_instruction
     {
-        uint64_t opcode : 8 = Opcode::str;
-        uint64_t size : 2 = Data_type::octobyte;
-        uint64_t rsrc : 4;
-        uint64_t rbase : 4;
-        uint64_t off : 46;
+        Instruction_t opcode : opcode_size = Opcode::str;
+        Instruction_t size : data_type_size = Data_type::octobyte;
+        Instruction_t rsrc : register_size;
+        Instruction_t rbase : register_size;
+        Instruction_t off : 14;
     };
 
     void str(Processor_state& state, Instruction_t instruction);

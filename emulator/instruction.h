@@ -4,6 +4,10 @@
 
 namespace emulator
 {
+    constexpr auto opcode_size = 8;
+    constexpr auto register_size = 4;
+    constexpr auto data_type_size = 2;
+
     namespace Opcode
     {
         enum Opcode : uint8_t
@@ -31,7 +35,7 @@ namespace emulator
     }
 
 
-    using Instruction_t [[gnu::may_alias]] = uint64_t;
+    using Instruction_t [[gnu::may_alias]] = uint32_t;
 
     template<typename T>
     concept Instruction = sizeof(T) == sizeof(Instruction_t);
