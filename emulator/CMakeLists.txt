@@ -6,6 +6,7 @@ add_library (emulator
     "instruction_decoder.cpp"
     "arithmetic_instructions.cpp"
     "data_instructions.cpp"
-  )
+    "logical_instructions.cpp"
+)
 
 set_property(TARGET emulator PROPERTY CXX_STANDARD 20)

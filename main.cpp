@@ -16,6 +16,10 @@ int main()
     code.push_back(toInstruction(Arithmetic_instruction{ .opcode = Opcode::add, .r1 = 11, .r2 = 6 }));
     code.push_back(toInstruction(Mov_imm_instruction{ .rdst = 13, .imm = 504 }));
     code.push_back(toInstruction(Str_instruction{ .size = Data_type::octobyte, .rsrc = 11, .rbase = 13, .off = 0 }));
+    code.push_back(toInstruction(Mov_imm_instruction{ .rdst = 0, .imm = 0xF0F0F0 }));
+    code.push_back(toInstruction(Logical_inv_instruction{ .r = 0 }));
+    code.push_back(toInstruction(Mov_imm_instruction{ .rdst = 1, .imm = 0xF0F0F0 }));
+    code.push_back(toInstruction(Logical_instruction{ .opcode = Opcode::orl, .r1 = 0, .r2 = 1 }));
     code.push_back(uint64_t{0xDDDDDDDDCCCCBBAA});
 
 

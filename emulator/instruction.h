@@ -16,7 +16,7 @@ namespace emulator
             andl,
             orl,
             xorl,
-            inv,
+            invl,
             invalid
         };
     }
