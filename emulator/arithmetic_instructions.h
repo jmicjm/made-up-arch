@@ -1,6 +1,7 @@
 #pragma once
 #include "instruction.h"
 #include "processor_state.h"
+#include "instruction_registry.h"
 
 
 namespace emulator
@@ -14,5 +15,7 @@ namespace emulator
 
 
     void add(Processor_state& state, Instruction_t instruction);
+    REGISTER_INSTRUCTION(Opcode::add, add)
     void sub(Processor_state& state, Instruction_t instruction);
+    REGISTER_INSTRUCTION(Opcode::sub, sub)
 }

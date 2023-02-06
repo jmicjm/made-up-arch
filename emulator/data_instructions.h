@@ -1,6 +1,7 @@
 #pragma once
 #include "instruction.h"
 #include "processor_state.h"
+#include "instruction_registry.h"
 
 
 namespace emulator
@@ -22,6 +23,7 @@ namespace emulator
     };
 
     void mov(Processor_state& state, Instruction_t instruction);
+    REGISTER_INSTRUCTION(Opcode::mov, mov)
 
 
     struct [[gnu::may_alias]] Ldr_instruction
@@ -34,6 +36,8 @@ namespace emulator
     };
 
     void ldr(Processor_state& state, Instruction_t instruction);
+    REGISTER_INSTRUCTION(Opcode::ldr, ldr)
+
 
     struct [[gnu::may_alias]] Str_instruction
     {
@@ -45,4 +49,5 @@ namespace emulator
     };
 
     void str(Processor_state& state, Instruction_t instruction);
+    REGISTER_INSTRUCTION(Opcode::str, str)
 }
