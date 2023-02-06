@@ -6,19 +6,21 @@ namespace emulator
     {
         const auto instr = instruction_cast<Arithmetic_instruction>(instruction);
 
-        auto& reg1 = state.registers[instr.r1];
-        const auto reg2 = state.registers[instr.r2];
+        auto& rdst = state.registers[instr.rdst];
+        const auto r1 = state.registers[instr.r1];
+        const auto r2 = state.registers[instr.r2];
 
-        reg1 += reg2;
+        rdst = r1 + r2;
     }
 
     void sub(Processor_state& state, Instruction_t instruction)
     {
         const auto instr = instruction_cast<Arithmetic_instruction>(instruction);
 
-        auto& reg1 = state.registers[instr.r1];
-        const auto reg2 = state.registers[instr.r2];
+        auto& rdst = state.registers[instr.rdst];
+        const auto r1 = state.registers[instr.r1];
+        const auto r2 = state.registers[instr.r2];
 
-        reg1 -= reg2;
+        rdst = r1 - r2;
     }
 }

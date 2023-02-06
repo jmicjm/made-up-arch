@@ -10,6 +10,7 @@ namespace emulator
     struct [[gnu::may_alias]] Logical_instruction
     {
         Instruction_t opcode : opcode_size = Opcode::invalid;
+        Instruction_t rdst : register_size;
         Instruction_t r1 : register_size;
         Instruction_t r2 : register_size;
     };
@@ -17,7 +18,8 @@ namespace emulator
     struct [[gnu::may_alias]] Logical_inv_instruction
     {
         Instruction_t opcode : opcode_size = Opcode::invl;
-        Instruction_t r : register_size;
+        Instruction_t rdst : register_size;
+        Instruction_t rsrc : register_size;
     };
 
     template<typename op>
@@ -25,10 +27,11 @@ namespace emulator
     {
         const auto instr = instruction_cast<Logical_instruction>(instruction);
 
-        auto& reg1 = state.registers[instr.r1];
-        const auto reg2 = state.registers[instr.r2];
+        auto& rdst = state.registers[instr.rdst];
+        const auto r1 = state.registers[instr.r1];
+        const auto r2 = state.registers[instr.r2];
 
-        reg1 = op{}(reg1, reg2);
+        rdst = op{}(r1, r2);
     }
 
     REGISTER_INSTRUCTION(Opcode::andl, logicalInstruction<std::bit_and<>>)
