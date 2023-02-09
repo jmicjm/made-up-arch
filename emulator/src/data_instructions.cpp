@@ -15,9 +15,7 @@ namespace emulator
         }
         else
         {
-            auto& reg_src = state.registers[instr.rsrc];
-
-            reg_dst = reg_src;
+            reg_dst = state.registers[instr.rsrc];
         }
     }
 
@@ -26,7 +24,7 @@ namespace emulator
         const auto instr = instruction_cast<Ldr_instruction>(instruction);
         auto& reg_dst = state.registers[instr.rdst];
 
-        const auto addr = state.registers[instr.rbase] + instr.off;
+        const uint64_t addr = state.registers[instr.rbase] + instr.off;
 
         if (addr + (1ull << instr.size) <= state.memory.size())
         {
@@ -53,7 +51,7 @@ namespace emulator
         const auto instr = instruction_cast<Str_instruction>(instruction);
         const auto reg_src = state.registers[instr.rsrc];
 
-        const auto addr = state.registers[instr.rbase] + instr.off;
+        const uint64_t addr = state.registers[instr.rbase] + instr.off;
 
         if (addr + (1ull << instr.size) <= state.memory.size())
         {

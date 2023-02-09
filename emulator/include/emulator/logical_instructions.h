@@ -9,17 +9,17 @@ namespace emulator
 {
     struct [[gnu::may_alias]] Logical_instruction
     {
-        Instruction_t opcode : opcode_size = Opcode::invalid;
-        Instruction_t rdst : register_size;
-        Instruction_t r1 : register_size;
-        Instruction_t r2 : register_size;
+        uint32_t opcode : opcode_size = Opcode::invalid;
+        uint32_t rdst : register_size;
+        uint32_t r1 : register_size;
+        uint32_t r2 : register_size;
     };
 
     struct [[gnu::may_alias]] Logical_inv_instruction
     {
-        Instruction_t opcode : opcode_size = Opcode::invl;
-        Instruction_t rdst : register_size;
-        Instruction_t rsrc : register_size;
+        uint32_t opcode : opcode_size = Opcode::invl;
+        uint32_t rdst : register_size;
+        uint32_t rsrc : register_size;
     };
 
     template<typename op>

@@ -14,5 +14,5 @@ emulator::Instruction_decoder::Instruction_decoder() : instructions(1 << opcode_
 
 auto emulator::Instruction_decoder::decode(Instruction_t instruction) -> Instruction_f*
 {
-    return instructions[instruction & 0xFF];
+    return instructions[instruction & ((1 << opcode_size) - 1)];
 }

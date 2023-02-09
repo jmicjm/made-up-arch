@@ -1,5 +1,6 @@
 #include "arithmetic_instructions.h"
 
+
 namespace emulator
 {
     void add(Processor_state& state, Instruction_t instruction)

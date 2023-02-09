@@ -8,10 +8,10 @@ namespace emulator
 {   
     struct [[gnu::may_alias]] Arithmetic_instruction
     {
-        Instruction_t opcode : opcode_size = Opcode::invalid;
-        Instruction_t rdst : register_size;
-        Instruction_t r1 : register_size;
-        Instruction_t r2 : register_size;
+        uint32_t opcode : opcode_size = Opcode::invalid;
+        uint32_t rdst : register_size;
+        uint32_t r1 : register_size;
+        uint32_t r2 : register_size;
     };
 
     void add(Processor_state& state, Instruction_t instruction);

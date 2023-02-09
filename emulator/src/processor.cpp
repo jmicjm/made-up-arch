@@ -11,7 +11,7 @@ void emulator::Processor::executeNext()
     const uint64_t program_counter = state.registers[Processor_state::program_counter];
     if (program_counter + sizeof(Instruction_t) <= state.memory.size())
     {
-        const uint64_t instruction = reinterpret_cast<uint64_t&>(state.memory[program_counter]);
+        const Instruction_t instruction = reinterpret_cast<Instruction_t&>(state.memory[program_counter]);
         if (const auto op = decoder.decode(instruction))
         {
             state.registers[Processor_state::program_counter] += sizeof(Instruction_t);
