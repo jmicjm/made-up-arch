@@ -56,6 +56,56 @@ static void test3reg(const auto& instruction, const auto& expected, const std::v
     }
 }
 
+enum Flag_value : uint8_t
+{
+    C = false,
+    S = true,
+    D
+};
+
+struct Flags
+{
+    Flag_value carry;
+    Flag_value overflow;
+    Flag_value negative;
+    Flag_value zero;
+};
+
+static void test2regFlags(const auto& instruction, const std::vector<std::tuple<uint64_t, Flags>>& operands_and_expected)
+{
+    for (const auto& [rsrc, expected_flags] : operands_and_expected)
+    {
+        Processor processor{ sizeof(Instruction_t) };
+        processor.state.registers[0] = rsrc;
+        reinterpret_cast<Instruction_t&>(processor.state.memory[0x0]) = instruction(0u, 0u);
+
+        processor.executeNext();
+
+        if (expected_flags.carry != D) EXPECT_EQ(processor.state.pswFields().carry, expected_flags.carry);
+        if (expected_flags.overflow != D) EXPECT_EQ(processor.state.pswFields().overflow, expected_flags.overflow);
+        if (expected_flags.zero != D) EXPECT_EQ(processor.state.pswFields().zero, expected_flags.zero);
+        if (expected_flags.negative != D) EXPECT_EQ(processor.state.pswFields().negative, expected_flags.negative);
+    }
+}
+
+static void test3regFlags(const auto& instruction, const std::vector<std::tuple<uint64_t, uint64_t, Flags>>& operands_and_expected)
+{
+    for (const auto& [val1, val2, expected_flags] : operands_and_expected)
+    {
+        Processor processor{ sizeof(Instruction_t) };
+        processor.state.registers[0] = val1;
+        processor.state.registers[1] = val2;
+        reinterpret_cast<Instruction_t&>(processor.state.memory[0x0]) = instruction(0u, 0u, 1u);
+
+        processor.executeNext();
+
+        if (expected_flags.carry != D) EXPECT_EQ(processor.state.pswFields().carry, expected_flags.carry);
+        if (expected_flags.overflow != D) EXPECT_EQ(processor.state.pswFields().overflow, expected_flags.overflow);
+        if (expected_flags.zero != D) EXPECT_EQ(processor.state.pswFields().zero, expected_flags.zero);
+        if (expected_flags.negative != D) EXPECT_EQ(processor.state.pswFields().negative, expected_flags.negative);
+    }
+}
+
 template<typename T>
 static void ldrTest(uint8_t data_type, T memory_val, std::vector<std::pair<int32_t, int64_t>> base_offset_pairs)
 {

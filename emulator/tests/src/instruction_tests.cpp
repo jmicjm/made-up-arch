@@ -110,6 +110,20 @@ TEST(instruction_tests, inv)
     );
 }
 
+TEST(instruction_tests, inv_flags)
+{
+    test2regFlags(
+        [](auto rdst, auto rsrc) {
+            return toInstruction(Logical_inv_instruction{ .rdst = rdst, .rsrc = rsrc });
+        },
+        {
+            { 0x8000'0000'0000'0000,  { .carry = D, .overflow = D, .negative = C, .zero = C } },
+            { 0xFFFF'FFFF'FFFF'FFFF,  { .carry = D, .overflow = D, .negative = C, .zero = S } },
+            { 0x0000'0000'0000'0000,  { .carry = D, .overflow = D, .negative = S, .zero = C } }
+        }
+    );
+}
+
 TEST(instruction_tests, add)
 {
     test3reg(
@@ -123,6 +137,26 @@ TEST(instruction_tests, add)
      );
 }
 
+TEST(instruction_tests, add_flags)
+{
+    test3regFlags(
+        [](auto rdst, auto r1, auto r2) {
+            return toInstruction(Arithmetic_instruction{ .opcode = Opcode::add, .rdst = rdst, .r1 = r1, .r2 = r2 });
+        },
+        {
+            { 0x0000'0000'0000'0000, 0x0000'0000'0000'0001, { .carry = C, .overflow = C, .negative = C, .zero = C } },
+            { 0x0000'0000'0000'0000, 0x0000'0000'0000'0000, { .carry = C, .overflow = C, .negative = C, .zero = S } },
+            { 0x0000'0000'0000'0001, 0x8000'0000'0000'0000, { .carry = C, .overflow = C, .negative = S, .zero = C } },
+            { 0x0000'0000'0000'0002, 0xFFFF'FFFF'FFFF'FFFF, { .carry = S, .overflow = C, .negative = C, .zero = C } },
+            { 0x0000'0000'0000'0001, 0xFFFF'FFFF'FFFF'FFFF, { .carry = S, .overflow = C, .negative = C, .zero = S } },
+            { 0xFFFF'FFFF'FFFF'FFFF, 0xFFFF'FFFF'FFFF'FFFF, { .carry = S, .overflow = C, .negative = S, .zero = C } },
+            { 0x7FFF'FFFF'FFFF'FFFF, 0x7FFF'FFFF'FFFF'FFFF, { .carry = C, .overflow = S, .negative = S, .zero = C } },
+            { 0x8000'0000'0000'0000, 0xFFFF'FFFF'FFFF'FFFF, { .carry = S, .overflow = S, .negative = C, .zero = C } },
+            { 0x8000'0000'0000'0000, 0x8000'0000'0000'0000, { .carry = S, .overflow = S, .negative = C, .zero = S } }
+        }
+    );
+}
+
 TEST(instruction_tests, sub)
 {
     test3reg(
@@ -133,6 +167,23 @@ TEST(instruction_tests, sub)
             return r1_val - r2_val;
         },
         { {255, 65536} }
+    );
+}
+
+TEST(instruction_tests, sub_flags)
+{
+    test3regFlags(
+        [](auto rdst, auto r1, auto r2) {
+            return toInstruction(Arithmetic_instruction{ .opcode = Opcode::sub, .rdst = rdst, .r1 = r1, .r2 = r2 });
+        },
+        {
+            { 0x0000'0000'0000'0002, 0x0000'0000'0000'0001, { .carry = C, .overflow = C, .negative = C, .zero = C } },
+            { 0x0000'0000'0000'0001, 0x0000'0000'0000'0001, { .carry = C, .overflow = C, .negative = C, .zero = S } },
+            { 0xFFFF'FFFF'FFFF'FFFF, 0x0000'0000'0000'0001, { .carry = C, .overflow = C, .negative = S, .zero = C } },
+            { 0x0000'0000'0000'0000, 0x0000'0000'0000'0001, { .carry = S, .overflow = C, .negative = S, .zero = C } },
+            { 0x8000'0000'0000'0000, 0x0000'0000'0000'0001, { .carry = C, .overflow = S, .negative = C, .zero = C } },
+            { 0x0000'0000'0000'0000, 0x8000'0000'0000'0000, { .carry = S, .overflow = S, .negative = S, .zero = C } }
+        }
     );
 }
 
@@ -149,6 +200,20 @@ TEST(instruction_tests, andl)
     );
 }
 
+TEST(instruction_tests, andl_flags)
+{
+    test3regFlags(
+        [](auto rdst, auto r1, auto r2) {
+            return toInstruction(Logical_instruction{ .opcode = Opcode::andl, .rdst = rdst, .r1 = r1, .r2 = r2 });
+        },
+        {
+            { 0x0000'0000'0000'0001, 0x0000'0000'0000'0001, { .carry = D, .overflow = D, .negative = C, .zero = C }},
+            { 0x0000'0000'0000'0000, 0x0000'0000'0000'0001, { .carry = D, .overflow = D, .negative = C, .zero = S }},
+            { 0x8000'0000'0000'0000, 0x8000'0000'0000'0000, { .carry = D, .overflow = D, .negative = S, .zero = C }},
+        }
+    );
+}
+
 TEST(instruction_tests, orl)
 {
     test3reg(
@@ -162,6 +227,20 @@ TEST(instruction_tests, orl)
     );
 }
 
+TEST(instruction_tests, orl_flags)
+{
+    test3regFlags(
+        [](auto rdst, auto r1, auto r2) {
+            return toInstruction(Logical_instruction{ .opcode = Opcode::orl, .rdst = rdst, .r1 = r1, .r2 = r2 });
+        },
+        {
+            { 0x0000'0000'0000'0001, 0x0000'0000'0000'0001, {.carry = D, .overflow = D, .negative = C, .zero = C }},
+            { 0x0000'0000'0000'0000, 0x0000'0000'0000'0000, {.carry = D, .overflow = D, .negative = C, .zero = S }},
+            { 0x0000'0000'0000'0000, 0x8000'0000'0000'0000, {.carry = D, .overflow = D, .negative = S, .zero = C }},
+        }
+    );
+}
+
 TEST(instruction_tests, xorl)
 {
     test3reg(
@@ -172,5 +251,19 @@ TEST(instruction_tests, xorl)
             return r1_val ^ r2_val;
         },
         { {0xF0F0F0F0F0F0F0F0, 0x0F0F0F0F0F0F0F0F}, {0xF0F0F0F0F0F0F0F0, 0xA1A1A1A1A1A1A1A1} }
+    );
+}
+
+TEST(instruction_tests, xorl_flags)
+{
+    test3regFlags(
+        [](auto rdst, auto r1, auto r2) {
+            return toInstruction(Logical_instruction{ .opcode = Opcode::xorl, .rdst = rdst, .r1 = r1, .r2 = r2 });
+        },
+        {
+            { 0x0000'0000'0000'0000, 0x0000'0000'0000'0001, {.carry = D, .overflow = D, .negative = C, .zero = C }},
+            { 0x0000'0000'0000'0001, 0x0000'0000'0000'0001, {.carry = D, .overflow = D, .negative = C, .zero = S }},
+            { 0x0000'0000'0000'0000, 0x8000'0000'0000'0000, {.carry = D, .overflow = D, .negative = S, .zero = C }},
+        }
     );
 }

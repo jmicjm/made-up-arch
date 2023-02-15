@@ -1,10 +1,26 @@
 #include "processor_state.h"
+#include "processor_state.h"
 #include <iostream>
+#include <bitset>
 #include <iomanip>
+#include <utility>
 
+
+auto emulator::Processor_state::pswFields() const -> const Status_word&
+{
+    return reinterpret_cast<const Status_word&>(status_word);
+}
+
+auto emulator::Processor_state::pswFields() -> Status_word&
+{
+    return const_cast<Status_word&>(std::as_const(*this).pswFields());
+}
 
 void emulator::Processor_state::print() const
 {
+    std::cout << "====PSW====\n";
+    std::cout << "----ZNVC\n";
+    std::cout << std::bitset<sizeof(status_word) * 8>{ status_word } << "\n";
     std::cout << "====REGISTERS====\n";
     for (auto i = 0; i < registers.size(); i++)
     {
@@ -21,6 +37,4 @@ void emulator::Processor_state::print() const
         }
         std::cout << "\n";
     }
-
-
 }
