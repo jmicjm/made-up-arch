@@ -267,3 +267,204 @@ TEST(instruction_tests, xorl_flags)
         }
     );
 }
+
+TEST(instruction_tests, tst_flags)
+{
+    test2regComparisonFlags(
+        [](auto r1, auto r2) {
+            return toInstruction(Comparison_instruction{ .opcode = Opcode::tst, .r1 = r1, .r2 = r2 });
+        },
+        {
+            { 0x0000'0000'0000'0001, 0x0000'0000'0000'0001, { .carry = D, .overflow = D, .negative = C, .zero = C }},
+            { 0x0000'0000'0000'0000, 0x0000'0000'0000'0001, { .carry = D, .overflow = D, .negative = C, .zero = S }},
+            { 0x8000'0000'0000'0000, 0x8000'0000'0000'0000, { .carry = D, .overflow = D, .negative = S, .zero = C }},
+        }
+    );
+}
+
+TEST(instruction_tests, cmp_flags)
+{
+    test2regComparisonFlags(
+        [](auto r1, auto r2) {
+            return toInstruction(Comparison_instruction{ .opcode = Opcode::cmp, .r1 = r1, .r2 = r2 });
+        },
+        {
+            { 0x0000'0000'0000'0002, 0x0000'0000'0000'0001, { .carry = C, .overflow = C, .negative = C, .zero = C } },
+            { 0x0000'0000'0000'0001, 0x0000'0000'0000'0001, { .carry = C, .overflow = C, .negative = C, .zero = S } },
+            { 0xFFFF'FFFF'FFFF'FFFF, 0x0000'0000'0000'0001, { .carry = C, .overflow = C, .negative = S, .zero = C } },
+            { 0x0000'0000'0000'0000, 0x0000'0000'0000'0001, { .carry = S, .overflow = C, .negative = S, .zero = C } },
+            { 0x8000'0000'0000'0000, 0x0000'0000'0000'0001, { .carry = C, .overflow = S, .negative = C, .zero = C } },
+            { 0x0000'0000'0000'0000, 0x8000'0000'0000'0000, { .carry = S, .overflow = S, .negative = S, .zero = C } }
+        }
+    );
+}
+
+TEST(instruction_tests, branch_always)
+{
+    testBranch(
+        Branch_condition::always,
+        {
+            { .carry = D, .overflow = D, .negative = D, .zero = D } 
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_equal)
+{
+    testBranch(
+        Branch_condition::equal,
+        {
+            { .carry = D, .overflow = D, .negative = D, .zero = S }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+TEST(instruction_tests, branch_not_equal)
+{
+    testBranch(
+        Branch_condition::not_equal,
+        {
+            { .carry = D, .overflow = D, .negative = D, .zero = C }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_carry)
+{
+    testBranch(
+        Branch_condition::carry,
+        {
+            { .carry = S, .overflow = D, .negative = D, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_not_carry)
+{
+    testBranch(
+        Branch_condition::not_carry,
+        {
+            { .carry = C, .overflow = D, .negative = D, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_negative)
+{
+    testBranch(
+        Branch_condition::negative,
+        {
+            { .carry = D, .overflow = D, .negative = S, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_not_negative)
+{
+    testBranch(
+        Branch_condition::not_negative,
+        {
+            { .carry = D, .overflow = D, .negative = C, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_overflow)
+{
+    testBranch(
+        Branch_condition::overflow,
+        {
+            { .carry = D, .overflow = S, .negative = D, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_not_overflow)
+{
+    testBranch(
+        Branch_condition::not_overflow,
+        {
+            { .carry = D, .overflow = C, .negative = D, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_higher)
+{
+    testBranch(
+        Branch_condition::higher,
+        {
+            { .carry = D, .overflow = C, .negative = C, .zero = C },
+            { .carry = D, .overflow = S, .negative = S, .zero = C }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_higher_or_equal)
+{
+    testBranch(
+        Branch_condition::higher_or_equal,
+        {
+            { .carry = D, .overflow = C, .negative = C, .zero = D },
+            { .carry = D, .overflow = S, .negative = S, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_less)
+{
+    testBranch(
+        Branch_condition::less,
+        {
+            { .carry = D, .overflow = C, .negative = S, .zero = D },
+            { .carry = D, .overflow = S, .negative = C, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_less_or_equal)
+{
+    testBranch(
+        Branch_condition::less_or_equal,
+        {
+            { .carry = D, .overflow = D, .negative = D, .zero = S },
+            { .carry = D, .overflow = C, .negative = S, .zero = D },
+            { .carry = D, .overflow = S, .negative = C, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_uhigher)
+{
+    testBranch(
+        Branch_condition::uhigher,
+        {
+            { .carry = C, .overflow = D, .negative = D, .zero = C }
+        },
+        { 1, -1, 4, -4 }
+    );
+}
+
+TEST(instruction_tests, branch_uless_or_equal)
+{
+    testBranch(
+        Branch_condition::uless_or_equal,
+        {
+            { .carry = D, .overflow = D, .negative = D, .zero = S },
+            { .carry = S, .overflow = D, .negative = D, .zero = D }
+        },
+        { 1, -1, 4, -4 }
+    );
+}

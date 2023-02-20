@@ -8,6 +8,8 @@ add_library (emulator
     "src/arithmetic_instructions.cpp"
     "src/data_instructions.cpp"
     "src/logical_instructions.cpp"
+    "src/control_flow_instructions.cpp"
+    "src/comparison_instructions.cpp"
 )
 
 target_include_directories(emulator PRIVATE "include/emulator")

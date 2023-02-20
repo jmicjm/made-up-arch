@@ -21,6 +21,10 @@ namespace emulator
             orl,
             xorl,
             invl,
+            branch,
+            branch_absolute,
+            cmp,
+            tst,
             invalid
         };
     }
