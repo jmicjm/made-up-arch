@@ -1,6 +1,7 @@
 #include "arithmetic_instructions.h"
 #include "common.h"
 #include <limits>
+#include <type_traits>
 
 
 namespace emulator
@@ -11,12 +12,12 @@ namespace emulator
 
         auto& rdst = state.registers[instr.rdst];
         const auto r1 = state.registers[instr.r1];
-        const auto r2 = state.registers[instr.r2];
+        const auto r2 = instr.imm_arg ? instruction_cast<Arithmetic_imm_instruction>(instruction).imm : state.registers[instr.r2];
 
         rdst = r1 + r2;
 
         updateNZflags(state, rdst);
-        state.pswFields().carry = r1 > std::numeric_limits<uint64_t>::max() - r2;
+        state.pswFields().carry = r1 > std::numeric_limits<std::remove_reference_t<decltype(rdst)>>::max() - r2;
         state.pswFields().overflow = msb(r1) == msb(r2) && msb(r1) != msb(rdst);
     }
 
@@ -26,7 +27,7 @@ namespace emulator
 
         auto& rdst = state.registers[instr.rdst];
         const auto r1 = state.registers[instr.r1];
-        const auto r2 = state.registers[instr.r2];
+        const auto r2 = instr.imm_arg ? instruction_cast<Arithmetic_imm_instruction>(instruction).imm : state.registers[instr.r2];
 
         rdst = r1 - r2;
 

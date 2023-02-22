@@ -4,6 +4,8 @@
 #include <vector>
 #include <utility>
 #include <cstdint>
+#include <string_view>
+#include <algorithm>
 
 
 using namespace emulator;
@@ -136,4 +138,37 @@ TEST(simple_sequences_tests, fill_memory)
         EXPECT_EQ(processor.state.memory[begin_addr + i], value);
     }
     EXPECT_EQ(processor.state.memory[begin_addr + len], 0x0);
+}
+
+TEST(simple_sequences_tests, strlen)
+{
+    const auto begin_addr = 0x100;
+    const auto string = std::string_view{ "abcdefghij" };
+
+    std::vector<Instruction_t> code;
+    code.push_back(toInstruction(Mov_imm_instruction{ .rdst = 0, .imm = 0 }));
+    code.push_back(toInstruction(Mov_imm_instruction{ .rdst = 1, .imm = begin_addr }));
+    code.push_back(toInstruction(Ldr_instruction{ .size = Data_type::byte, .rdst = 2, .rbase = 1, .off = 0 }));
+    code.push_back(toInstruction(Comparison_imm_instruction{ .opcode = Opcode::cmp, .r1 = 2, .imm = '\0'}));
+    code.push_back(toInstruction(Branch_instruction{ .link = 0, .condition = Branch_condition::equal, .offset = 3 }));
+    code.push_back(toInstruction(Arithmetic_imm_instruction{ .opcode = Opcode::add, .rdst = 0, .r1 = 0, .imm = 1 }));
+    code.push_back(toInstruction(Arithmetic_imm_instruction{ .opcode = Opcode::add, .rdst = 1, .r1 = 1, .imm = 1 }));
+    code.push_back(toInstruction(Branch_instruction{ .link = 0, .condition = Branch_condition::always, .offset = -6 }));
+
+    Processor processor{ 512 };
+
+    for (auto i = 0; i < code.size(); i++)
+    {
+        reinterpret_cast<Instruction_t&>(processor.state.memory[i * sizeof(Instruction_t)]) = code[i];
+    }
+
+    std::copy(string.begin(), string.end(), processor.state.memory.begin() + begin_addr);
+
+
+    while (processor.state.registers[Processor_state::program_counter] < code.size() * sizeof(Instruction_t))
+    {
+        processor.executeNext();
+    }
+
+    EXPECT_EQ(processor.state.registers[0], string.size());
 }
