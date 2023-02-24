@@ -72,4 +72,22 @@ namespace emulator
         }
         else std::exit(-1);
     }
+
+    void push(Processor_state& state, Instruction_t instruction)
+    {
+        const auto instr = instruction_cast<Push_instruction>(instruction);
+        
+        state.registers[Processor_state::stack_pointer] -= 1ull << instr.size;
+
+        str(state, toInstruction(Str_instruction{ .size = instr.size, .rsrc = instr.rsrc, .rbase = Processor_state::stack_pointer, .off = 0 }));
+    }
+
+    void pop(Processor_state& state, Instruction_t instruction)
+    {
+        const auto instr = instruction_cast<Pop_instruction>(instruction);
+
+        ldr(state, toInstruction(Ldr_instruction{ .size = instr.size, .rdst = instr.rdst, .rbase = Processor_state::stack_pointer, .off = 0 }));
+
+        state.registers[Processor_state::stack_pointer] += 1ull << instr.size;
+    }
 }

@@ -15,6 +15,8 @@ namespace emulator
             mov,
             ldr,
             str,
+            push,
+            pop,
             add,
             sub,
             andl,

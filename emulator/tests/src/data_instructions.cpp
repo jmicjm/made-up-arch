@@ -97,3 +97,43 @@ TEST(data_instructions, str_byte)
 {
     strTest<uint8_t>(Data_type::byte, 0x88, { {0,0}, {4,16}, {32,-8}, {-8,32} });
 }
+
+TEST(data_instructions, push_octobyte)
+{
+    pushTest<uint64_t>(Data_type::octobyte, 0xFFEEDDCCBBAA9988, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, push_quadbyte)
+{
+    pushTest<uint32_t>(Data_type::quadbyte, 0xBBAA9988, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, push_doublebyte)
+{
+    pushTest<uint16_t>(Data_type::doublebyte, 0x9988, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, push_byte)
+{
+    pushTest<uint8_t>(Data_type::byte, 0x88, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, pop_octobyte)
+{
+    popTest<uint64_t>(Data_type::octobyte, 0xFFEEDDCCBBAA9988, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, pop_quadbyte)
+{
+    popTest<uint32_t>(Data_type::quadbyte, 0xBBAA9988, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, pop_doublebyte)
+{
+    popTest<uint16_t>(Data_type::doublebyte, 0x9988, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, pop_byte)
+{
+    popTest<uint8_t>(Data_type::byte, 0x88, { 0xFF, 0x100 });
+}

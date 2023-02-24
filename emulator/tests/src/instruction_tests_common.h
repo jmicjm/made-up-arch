@@ -203,6 +203,55 @@ static void strTest(uint8_t data_type, T register_val, std::vector<std::pair<int
     }
 }
 
+template<typename T>
+static void pushTest(uint8_t data_type, T register_val, std::vector<uint64_t> sp_values)
+{
+    for (const auto sp : sp_values)
+    {
+        const auto data_addr = sp - sizeof(T);
+        const auto instruction_addr = data_addr + sizeof(T);
+        const auto memory_size = instruction_addr + sizeof(Instruction_t);
+
+        for (auto rsrc = 0u; rsrc < (1 << register_size) - 2; rsrc++)
+        {
+            Processor processor{ memory_size };
+            processor.state.registers[Processor_state::program_counter] = instruction_addr;
+            processor.state.registers[Processor_state::stack_pointer] = sp;
+            processor.state.registers[rsrc] = register_val;
+            reinterpret_cast<Instruction_t&>(processor.state.memory[instruction_addr]) = toInstruction(Push_instruction{ .size = data_type, .rsrc = rsrc });
+
+            processor.executeNext();
+
+            EXPECT_EQ(reinterpret_cast<T&>(processor.state.memory[sp - sizeof(T)]), register_val);
+            EXPECT_EQ(processor.state.registers[Processor_state::stack_pointer], sp - sizeof(T));
+        }
+    }
+}
+
+template<typename T>
+static void popTest(uint8_t data_type, T memory_val, std::vector<uint64_t> sp_values)
+{
+    for (const auto sp : sp_values)
+    {
+        const auto instruction_addr = sp + sizeof(T);
+        const auto memory_size = instruction_addr + sizeof(Instruction_t);
+
+        for (auto rdst = 0u; rdst < (1 << register_size) - 2; rdst++)
+        {
+            Processor processor{ memory_size };
+            processor.state.registers[Processor_state::program_counter] = instruction_addr;
+            processor.state.registers[Processor_state::stack_pointer] = sp;
+            reinterpret_cast<T&>(processor.state.memory[sp]) = memory_val;
+            reinterpret_cast<Instruction_t&>(processor.state.memory[instruction_addr]) = toInstruction(Pop_instruction{ .size = data_type, .rdst = rdst });
+
+            processor.executeNext();
+
+            EXPECT_EQ(processor.state.registers[rdst], memory_val);
+            EXPECT_EQ(processor.state.registers[Processor_state::stack_pointer], sp + sizeof(T));
+        }
+    }
+}
+
 static void testBranch(Branch_condition condition, const std::vector<Flags>& flag_patterns, const std::vector<int32_t>& offsets)
 {
     for (auto i = 0u; i < 16u; i++)

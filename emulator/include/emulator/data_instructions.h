@@ -50,4 +50,24 @@ namespace emulator
 
     void str(Processor_state& state, Instruction_t instruction);
     REGISTER_INSTRUCTION(Opcode::str, str)
+
+    struct [[gnu::may_alias]] Push_instruction
+    {
+        uint32_t opcode : opcode_size = Opcode::push;
+        uint32_t size : data_type_size = Data_type::octobyte;
+        uint32_t rsrc : register_size;
+    };
+
+    void push(Processor_state& state, Instruction_t instruction);
+    REGISTER_INSTRUCTION(Opcode::push, push)
+
+    struct [[gnu::may_alias]] Pop_instruction
+    {
+        uint32_t opcode : opcode_size = Opcode::pop;
+        uint32_t size : data_type_size = Data_type::octobyte;
+        uint32_t rdst : register_size;
+    };
+
+    void pop(Processor_state& state, Instruction_t instruction);
+    REGISTER_INSTRUCTION(Opcode::pop, pop)
 }
