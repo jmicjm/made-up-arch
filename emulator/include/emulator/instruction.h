@@ -23,6 +23,8 @@ namespace emulator
             orl,
             xorl,
             invl,
+            shift,
+            rotate,
             branch,
             branch_absolute,
             cmp,
