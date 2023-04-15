@@ -58,4 +58,9 @@ namespace emulator
     {
         return instruction_cast<Instruction_t>(instruction);
     }
+
+    auto opcode(Instruction auto instruction)
+    {
+        return instruction & ((1 << opcode_size) - 1);
+    }
 }

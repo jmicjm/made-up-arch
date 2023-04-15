@@ -15,6 +15,6 @@ namespace emulator
     public:
         Instruction_decoder();
 
-        Instruction_f* decode(Instruction_t instruction);
+        Instruction_f* decode(Instruction_t instruction) const;
     };
 }
