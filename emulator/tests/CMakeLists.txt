@@ -9,6 +9,7 @@ add_executable (tests
     "src/data_instructions.cpp" 
     "src/control_flow_instructions.cpp" 
     "src/comparison_instructions.cpp"
+    "src/interrupts.cpp"
 )
 
 target_include_directories(tests PRIVATE "../include")
