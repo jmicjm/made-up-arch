@@ -20,10 +20,7 @@ TEST(simple_sequences_tests, popcount)
 
     Processor processor{ 512 };
 
-    for (auto i = 0; i < code.size(); i++)
-    {
-        reinterpret_cast<Instruction_t&>(processor.state.memory[i * sizeof(Instruction_t)]) = code[i];
-    }
+    writeCode(processor.state.memory, 0x0, code);
 
     processor.state.registers[0] = val;
 

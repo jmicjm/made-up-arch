@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "emulator/processor.h"
 #include "emulator/instructions.h"
+#include "emulator/memory_helpers.h"
 #include <vector>
 #include <utility>
 #include <cstdint>
@@ -26,10 +27,7 @@ TEST(simple_sequences_tests, load_update_store)
 
     Processor processor{ 512 };
 
-    for (auto i = 0; i < code.size(); i++)
-    {
-        reinterpret_cast<Instruction_t&>(processor.state.memory[i * sizeof(Instruction_t)]) = code[i];
-    }
+    writeCode(processor.state.memory, 0x0, code);
     reinterpret_cast<uint64_t&>(processor.state.memory[addr]) = memory_val;
 
 
@@ -55,10 +53,7 @@ TEST(simple_sequences_tests, load_2lvl_indirect)
 
     Processor processor{ 512 };
 
-    for (auto i = 0; i < code.size(); i++)
-    {
-        reinterpret_cast<Instruction_t&>(processor.state.memory[i * sizeof(Instruction_t)]) = code[i];
-    }
+    writeCode(processor.state.memory, 0x0, code);
     reinterpret_cast<uint64_t&>(processor.state.memory[addr1]) = addr2;
     reinterpret_cast<uint64_t&>(processor.state.memory[addr2]) = memory_val;
 
@@ -87,10 +82,7 @@ TEST(simple_sequences_tests, store_2lvl_indirect)
 
     processor.state.registers[src_register] = register_val;
 
-    for (auto i = 0; i < code.size(); i++)
-    {
-        reinterpret_cast<Instruction_t&>(processor.state.memory[i * sizeof(Instruction_t)]) = code[i];
-    }
+    writeCode(processor.state.memory, 0x0, code);
     reinterpret_cast<uint64_t&>(processor.state.memory[addr1]) = addr2;
 
 
@@ -122,10 +114,7 @@ TEST(simple_sequences_tests, fill_memory)
 
     Processor processor{ 512 };
 
-    for (auto i = 0; i < code.size(); i++)
-    {
-        reinterpret_cast<Instruction_t&>(processor.state.memory[i * sizeof(Instruction_t)]) = code[i];
-    }
+    writeCode(processor.state.memory, 0x0, code);
 
 
     while (processor.state.registers[Processor_state::program_counter] < code.size() * sizeof(Instruction_t))
@@ -158,10 +147,7 @@ TEST(simple_sequences_tests, strlen)
 
     Processor processor{ 512 };
 
-    for (auto i = 0; i < code.size(); i++)
-    {
-        reinterpret_cast<Instruction_t&>(processor.state.memory[i * sizeof(Instruction_t)]) = code[i];
-    }
+    writeCode(processor.state.memory, 0x0, code);
 
     std::copy(string.begin(), string.end(), processor.state.memory.begin() + begin_addr);
 
@@ -189,10 +175,7 @@ TEST(simple_sequences_tests, popcount)
 
     Processor processor{ 512 };
 
-    for (auto i = 0; i < code.size(); i++)
-    {
-        reinterpret_cast<Instruction_t&>(processor.state.memory[i * sizeof(Instruction_t)]) = code[i];
-    }
+    writeCode(processor.state.memory, 0x0, code);
 
     processor.state.registers[0] = val;
 
