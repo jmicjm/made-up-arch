@@ -1,4 +1,5 @@
 #include "processor.h"
+#include "control_flow_instructions.h"
 #include <cstdlib>
 #include <utility>
 
@@ -18,35 +19,21 @@ void emulator::Processor::reset()
 {
     state.registers = Processor_state{}.registers;
     state.status_word = Processor_state{}.status_word;
-    state.registers[Processor_state::program_counter] = interruptVector().reset;
+    state.registers[Processor_state::program_counter] = state.interruptVector().reset;
 }
 
 void emulator::Processor::executeNext()
 {
-    const uint64_t program_counter = state.registers[Processor_state::program_counter];
+    const auto program_counter = state.registers[Processor_state::program_counter];
     if (program_counter + sizeof(Instruction_t) <= state.memory.size())
     {
-        const Instruction_t instruction = reinterpret_cast<Instruction_t&>(state.memory[program_counter]);
+        const auto instruction = reinterpret_cast<Instruction_t&>(state.memory[program_counter]);
         if (const auto op = decoder.decode(instruction))
         {
             state.registers[Processor_state::program_counter] += sizeof(Instruction_t);
             op(state, instruction);       
         }
-        else
-        {
-            state.registers[Processor_state::link_register] = state.registers[Processor_state::program_counter];
-            state.registers[Processor_state::program_counter] = interruptVector().invalid_opcode;
-        }
+        else branch(state, state.interruptVector().invalid_opcode, true);
     }
-    else std::exit(-1);
-}
-
-Interrupt_vector& emulator::Processor::interruptVector()
-{
-    return const_cast<Interrupt_vector&>(std::as_const(*this).interruptVector());
-}
-
-const Interrupt_vector& emulator::Processor::interruptVector() const
-{
-    return reinterpret_cast<const Interrupt_vector&>(state.memory[0]);
+    else branch(state, state.interruptVector().invalid_address, true);
 }

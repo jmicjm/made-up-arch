@@ -18,8 +18,5 @@ namespace emulator
 
         void reset();
         void executeNext();
-
-        Interrupt_vector& interruptVector();
-        const Interrupt_vector& interruptVector() const;
     };
 }

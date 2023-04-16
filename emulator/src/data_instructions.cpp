@@ -1,4 +1,5 @@
 #include "data_instructions.h"
+#include "control_flow_instructions.h"
 #include <cstdlib>
 
 
@@ -41,9 +42,9 @@ namespace emulator
                 break;
             case Data_type::octobyte:
                 reg_dst = reinterpret_cast<uint64_t&>(state.memory[addr]);
-            }   
+            }
         }
-        else std::exit(-1);
+        else branch(state, state.interruptVector().invalid_address, true);
     }
 
     void str(Processor_state& state, Instruction_t instruction)
@@ -70,7 +71,7 @@ namespace emulator
                 reinterpret_cast<uint64_t&>(state.memory[addr]) = reg_src;
             }
         }
-        else std::exit(-1);
+        else branch(state, state.interruptVector().invalid_address, true);
     }
 
     void push(Processor_state& state, Instruction_t instruction)

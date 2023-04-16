@@ -1,4 +1,5 @@
 #pragma once
+#include "interrupt_vector.h"
 #include <cstdint>
 #include <array>
 #include <vector>
@@ -29,6 +30,9 @@ namespace emulator
 
         Status_word& pswFields();
         const Status_word& pswFields() const;
+
+        Interrupt_vector& interruptVector();
+        const Interrupt_vector& interruptVector() const;
 
         void print() const;
     };

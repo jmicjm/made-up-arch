@@ -37,7 +37,7 @@ TEST(interrupts, invalid_opcode)
 
     Processor processor{ memory };
 
-    processor.interruptVector().invalid_opcode = invalid_opcode_handler_addr;
+    processor.state.interruptVector().invalid_opcode = invalid_opcode_handler_addr;
 
 
     while (processor.state.registers[Processor_state::program_counter] <= start_addr)
@@ -46,4 +46,24 @@ TEST(interrupts, invalid_opcode)
     }
 
     EXPECT_EQ(processor.state.registers[Processor_state::program_counter], invalid_opcode_handler_addr);
+}
+
+TEST(interrupts, invalid_address)
+{
+    const auto invalid_address_handler_addr = 0xFF;
+    auto [memory, start_addr] = generateBasicMemory(512, 512);
+
+    reinterpret_cast<Ldr_instruction&>(memory[start_addr]) = Ldr_instruction{ .rdst = 0, .rbase = Processor_state::program_counter, .off = 1024 };
+
+    Processor processor{ memory };
+
+    processor.state.interruptVector().invalid_address = invalid_address_handler_addr;
+
+
+    while (processor.state.registers[Processor_state::program_counter] <= start_addr)
+    {
+        processor.executeNext();
+    }
+
+    EXPECT_EQ(processor.state.registers[Processor_state::program_counter], invalid_address_handler_addr);
 }

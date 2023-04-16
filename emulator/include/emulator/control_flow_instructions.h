@@ -46,4 +46,6 @@ namespace emulator
 
     void branchAbsolute(Processor_state& state, Instruction_t instrucion);
     REGISTER_INSTRUCTION(Opcode::branch_absolute, branchAbsolute);
+
+    void branch(Processor_state& state, uint64_t target_addr, bool link);
 }
