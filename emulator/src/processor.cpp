@@ -24,13 +24,14 @@ void emulator::Processor::reset()
 
 void emulator::Processor::executeNext()
 {
-    const auto program_counter = state.registers[Processor_state::program_counter];
+    auto& program_counter = state.registers[Processor_state::program_counter];
     if (program_counter + sizeof(Instruction_t) <= state.memory.size())
     {
         const auto instruction = reinterpret_cast<Instruction_t&>(state.memory[program_counter]);
+        program_counter += sizeof(Instruction_t);
+
         if (const auto op = decoder.decode(instruction))
-        {
-            state.registers[Processor_state::program_counter] += sizeof(Instruction_t);
+        {    
             op(state, instruction);       
         }
         else branch(state, state.interruptVector().invalid_opcode, true);
