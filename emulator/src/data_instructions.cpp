@@ -1,6 +1,6 @@
 #include "data_instructions.h"
+#include "memory_bus.h"
 #include "control_flow_instructions.h"
-#include <cstdlib>
 
 
 namespace emulator
@@ -20,59 +20,64 @@ namespace emulator
         }
     }
 
+
+    template<template<typename> typename f>
+    void dispatchByDataType(uint8_t data_type, auto&&... args)
+    {
+        switch (data_type)
+        {
+        case Data_type::byte:
+            f<uint8_t>{}(args...);
+            break;
+        case Data_type::doublebyte:
+            f<uint16_t>{}(args...);
+            break;
+        case Data_type::quadbyte:
+            f<uint32_t>{}(args...);
+            break;
+        case Data_type::octobyte:
+            f<uint64_t>{}(args...);
+        }
+    }
+    
+    template<typename T>
+    struct Load_register
+    {    
+        void operator()(Processor_state& state, uint8_t reg, uint64_t address)
+        {
+            if (auto mem = readMemory<T>(state, address))
+            {
+                state.registers[reg] = *mem;
+            }
+        };
+    };
+
     void ldr(Processor_state& state, Instruction_t instruction)
     {
         const auto instr = instruction_cast<Ldr_instruction>(instruction);
-        auto& reg_dst = state.registers[instr.rdst];
-
         const uint64_t addr = state.registers[instr.rbase] + instr.off;
 
-        if (addr + (1ull << instr.size) <= state.memory.size())
-        {
-            switch (instr.size)
-            {
-            case Data_type::byte:
-                reg_dst = state.memory[addr];
-                break;
-            case Data_type::doublebyte:
-                reg_dst = reinterpret_cast<uint16_t&>(state.memory[addr]);
-                break;
-            case Data_type::quadbyte:
-                reg_dst = reinterpret_cast<uint32_t&>(state.memory[addr]);
-                break;
-            case Data_type::octobyte:
-                reg_dst = reinterpret_cast<uint64_t&>(state.memory[addr]);
-            }
-        }
-        else branch(state, state.interruptVector().invalid_address, true);
+        dispatchByDataType<Load_register>(instr.size, state, instr.rdst, addr);
     }
+
+
+    template<typename T>
+    struct Store_register
+    {
+        void operator()(Processor_state& state, uint8_t reg, uint64_t address)
+        {
+            writeMemory<T>(state, address, state.registers[reg]);
+        };
+    };
 
     void str(Processor_state& state, Instruction_t instruction)
     {
         const auto instr = instruction_cast<Str_instruction>(instruction);
-        const auto reg_src = state.registers[instr.rsrc];
-
         const uint64_t addr = state.registers[instr.rbase] + instr.off;
 
-        if (addr + (1ull << instr.size) <= state.memory.size())
-        {
-            switch (instr.size)
-            {
-            case Data_type::byte:
-                state.memory[addr] = reg_src;
-                break;
-            case Data_type::doublebyte:
-                reinterpret_cast<uint16_t&>(state.memory[addr]) = reg_src;
-                break;
-            case Data_type::quadbyte:
-                reinterpret_cast<uint32_t&>(state.memory[addr]) = reg_src;
-                break;
-            case Data_type::octobyte:
-                reinterpret_cast<uint64_t&>(state.memory[addr]) = reg_src;
-            }
-        }
-        else branch(state, state.interruptVector().invalid_address, true);
+        dispatchByDataType<Store_register>(instr.size, state, instr.rsrc, addr);
     }
+
 
     void push(Processor_state& state, Instruction_t instruction)
     {
