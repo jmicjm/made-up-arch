@@ -19,6 +19,11 @@ namespace emulator
         {
             return end <= other.begin;
         }
+
+        bool contains(const Address_range& other) const
+        {
+            return other.begin >= begin && other.end <= end;
+        }
     };
 
     using Read_handler = void (*)(Processor_state& state, uint64_t address, uint8_t* dst, uint8_t size);
@@ -47,18 +52,20 @@ namespace emulator
     template<typename T>
     std::optional<T> readMemory(Processor_state& state, uint64_t address)
     {
-        if (address + sizeof(T) <= state.memory.size())
+        const Address_range range = { address, address + sizeof(T) };
+
+        if (range.end <= state.memory.size())
         {
             return reinterpret_cast<Aliasable<T>&>(state.memory[address]);
         }
-        else if (auto it = read_handlers.find({ address, address + sizeof(T) }); it != read_handlers.end())
+        else if (auto it = read_handlers.find(range); it != read_handlers.end())
         {
-           const auto& [address_range, handler] = *it;
+           const auto& [handler_range, read_handler] = *it;
 
-            if (address >= address_range.begin && address + sizeof(T) <= address_range.end)
+            if (handler_range.contains(range))
             {
                 T buf{};
-                handler(state, address, reinterpret_cast<uint8_t*>(&buf), sizeof(T));
+                read_handler(state, address, reinterpret_cast<uint8_t*>(&buf), sizeof(T));
                 return buf;
             }
         }
@@ -70,18 +77,20 @@ namespace emulator
     template<typename T>
     void writeMemory(Processor_state& state, uint64_t address, T data)
     {
-        if (address + sizeof(T) <= state.memory.size())
+        const Address_range range = { address, address + sizeof(T) };
+
+        if (range.end <= state.memory.size())
         {
             reinterpret_cast<Aliasable<T>&>(state.memory[address]) = data;
             return;
         }
-        else if (auto it = write_handlers.find({ address, address + sizeof(T) }); it != write_handlers.end())
+        else if (auto it = write_handlers.find(range); it != write_handlers.end())
         {
-            const auto& [address_range, handler] = *it;
+            const auto& [handler_range, write_handler] = *it;
 
-            if (address >= address_range.begin && address + sizeof(T) <= address_range.end)
+            if (handler_range.contains(range))
             {
-                handler(state, address, reinterpret_cast<uint8_t*>(&data), sizeof(T));
+                write_handler(state, address, reinterpret_cast<uint8_t*>(&data), sizeof(T));
                 return;
             }
         }
