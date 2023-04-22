@@ -1,5 +1,5 @@
 #include "arithmetic_instructions.h"
-#include "common.h"
+#include "impl_common.h"
 #include <limits>
 #include <type_traits>
 

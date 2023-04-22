@@ -1,6 +1,7 @@
 #pragma once
 #include "processor_state.h"
 #include "control_flow_instructions.h"
+#include "common.h"
 #include <optional>
 
 
@@ -11,7 +12,7 @@ namespace emulator
     {
         if (address + sizeof(T) <= state.memory.size())
         {
-            return reinterpret_cast<T&>(state.memory[address]);
+            return reinterpret_cast<Aliasable<T>&>(state.memory[address]);
         }
 
         branch(state, state.interruptVector().invalid_address, true);
@@ -23,7 +24,7 @@ namespace emulator
     {
         if (address + sizeof(T) <= state.memory.size())
         {
-            reinterpret_cast<T&>(state.memory[address]) = data;
+            reinterpret_cast<Aliasable<T>&>(state.memory[address]) = data;
         }
         else branch(state, state.interruptVector().invalid_address, true);
     }

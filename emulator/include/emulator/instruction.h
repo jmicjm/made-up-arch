@@ -1,4 +1,5 @@
 #pragma once
+#include "common.h"
 #include <cstdint>
 
 
@@ -51,7 +52,7 @@ namespace emulator
     template<Instruction dst_type, Instruction src_type>
     dst_type instruction_cast(src_type instruction)
     {
-        return reinterpret_cast<dst_type&>(instruction);
+        return reinterpret_cast<Aliasable<dst_type>&>(instruction);
     }
 
     auto toInstruction(Instruction auto instruction)

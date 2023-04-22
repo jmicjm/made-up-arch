@@ -1,5 +1,5 @@
 #include "logical_instructions.h"
-#include "common.h"
+#include "impl_common.h"
 #include <functional>
 #include <type_traits>
 #include <bit>

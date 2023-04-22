@@ -2,6 +2,9 @@
 
 namespace emulator
 {
+    template<typename T>
+    using Aliasable [[gnu::may_alias]] = T;
+
     auto lowerHalf(auto value)
     {
         const auto half_mask = (1ull << sizeof(value) * 8 / 2) - 1;

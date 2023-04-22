@@ -1,5 +1,5 @@
 #include "comparison_instructions.h"
-#include "common.h"
+#include "impl_common.h"
 
 
 namespace emulator
