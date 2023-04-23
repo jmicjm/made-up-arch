@@ -17,7 +17,10 @@ add_library (emulator
 )
 
 target_include_directories(emulator PRIVATE "include/emulator")
-set_property(TARGET emulator PROPERTY CXX_STANDARD 20)
+set_target_properties(emulator PROPERTIES
+    CXX_STANDARD 20
+    CXX_EXTENSIONS OFF
+)
 
 if(BUILD_TESTING)
     add_subdirectory(tests)

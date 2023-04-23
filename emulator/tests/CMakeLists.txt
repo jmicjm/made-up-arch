@@ -14,7 +14,10 @@ add_executable (tests
 )
 
 target_include_directories(tests PRIVATE "../include")
-set_property(TARGET tests PROPERTY CXX_STANDARD 20)
+set_target_properties(tests PROPERTIES
+    CXX_STANDARD 20
+    CXX_EXTENSIONS OFF
+)
 
 target_link_libraries(tests PRIVATE emulator GTest::gtest_main)
 
