@@ -1,7 +1,9 @@
 #pragma once
 #include "processor_state.h"
 #include "control_flow_instructions.h"
+#include "address_range.h"
 #include "common.h"
+#include "peripherals/peripherals.h"
 #include <optional>
 #include <map>
 
@@ -10,22 +12,6 @@
 
 namespace emulator
 {
-    struct Address_range
-    {
-        uint64_t begin = 0;
-        uint64_t end = 0;
-
-        bool operator<(const Address_range& other) const
-        {
-            return end <= other.begin;
-        }
-
-        bool contains(const Address_range& other) const
-        {
-            return other.begin >= begin && other.end <= end;
-        }
-    };
-
     using Read_handler = void (*)(Processor_state& state, uint64_t address, uint8_t* dst, uint8_t size);
     using Write_handler = void (*)(Processor_state& state, uint64_t address, uint8_t* src, uint8_t size);
 
@@ -35,6 +21,14 @@ namespace emulator
             [](Processor_state& state, uint64_t address, uint8_t* dst, uint8_t size) {//test handler
                 for(int i=0;i<size;i++) *dst++ = 42;
             }
+        },
+        {
+            timer0_address,
+            [](Processor_state& state, auto... args) { state.peripherals.timer0.read(state, args...); }
+        },
+        {
+            timer1_address,
+            [](Processor_state& state, auto... args) { state.peripherals.timer1.read(state, args...); }
         }
     };
 
@@ -45,6 +39,14 @@ namespace emulator
                 std::ofstream ofs{"test_mmap.txt", std::ios::app};
                 for (int i = 0; i < size; i++) ofs << *src++;
             }
+        },
+        {
+            timer0_address,
+            [](Processor_state& state, auto... args) { state.peripherals.timer0.write(state, args...); }
+        },
+        {
+            timer1_address,
+            [](Processor_state& state, auto... args) { state.peripherals.timer1.write(state, args...); }
         }
     };
 

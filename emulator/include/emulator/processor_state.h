@@ -1,5 +1,6 @@
 #pragma once
 #include "interrupt_vector.h"
+#include "peripherals/peripherals.h"
 #include <cstdint>
 #include <array>
 #include <vector>
@@ -14,7 +15,7 @@ namespace emulator
         constexpr static auto stack_pointer = register_count - 2;
         constexpr static auto link_register = register_count - 3;
 
-        std::array<uint64_t, register_count> registers{};
+        
 
         struct [[gnu::may_alias]] Status_word
         {
@@ -25,8 +26,10 @@ namespace emulator
         };
 
         uint8_t status_word = 0x0;
-
+        std::array<uint64_t, register_count> registers{};
         std::vector<uint8_t> memory;
+        Peripherals peripherals;
+
 
         Status_word& pswFields();
         const Status_word& pswFields() const;

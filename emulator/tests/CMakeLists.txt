@@ -10,6 +10,7 @@ add_executable (tests
     "src/control_flow_instructions.cpp" 
     "src/comparison_instructions.cpp"
     "src/interrupts.cpp"
+    "src/peripherals/timers.cpp"
 )
 
 target_include_directories(tests PRIVATE "../include")

@@ -1,5 +1,5 @@
 #include "processor_state.h"
-#include "processor_state.h"
+#include "common.h"
 #include <iostream>
 #include <bitset>
 #include <iomanip>
@@ -37,6 +37,27 @@ void emulator::Processor_state::print() const
         std::cout << "r" << std::setw(2) << std::left << std::setfill(' ') << std::dec <<  i << ": 0x"
             << std::setw(16) << std::right << std::setfill('0') << std::hex << registers[i] << "\n";
     }
+
+    auto printTimer = [&](const Timer& timer, const std::string& name)
+    {
+        using namespace std::string_literals;
+
+        std::cout << std::setw(10) << std::left << std::setfill(' ');
+        std::cout << "T"s + name + "val: ";
+        std::cout << "0x" << std::setw(16) << std::right << std::setfill('0') << std::hex << timer.state.value << "\n";
+        std::cout << std::setw(10) << std::left << std::setfill(' ');
+        std::cout << "T"s + name + "rstval: ";
+        std::cout << "0x" << std::setw(16) << std::right << std::setfill('0') << std::hex << timer.state.reset_value << "\n";
+        std::cout << std::setw(10) << std::left << std::setfill(' ');
+        std::cout << "T"s + name + "conf: ";
+        std::cout << "0x" << std::setw(16) << std::right << std::setfill('0') << std::hex << reinterpret_cast<Aliasable<const uint64_t>&>(timer.state.config_word) << "\n";
+    };
+
+    printTimer(peripherals.timer0, "0");
+    printTimer(peripherals.timer1, "1");
+
+
+    
     std::cout << "====MEMORY====\n";
 
     for (auto i = 0; i < memory.size(); i+=64)
