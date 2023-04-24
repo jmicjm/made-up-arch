@@ -6,13 +6,13 @@
 
 namespace emulator
 {
-    constexpr Address_range timer0_address = { 0xFFFF'FFFF'FFFF'0000, 0xFFFF'FFFF'FFFF'0000 + sizeof(Timer_state) };
-    constexpr Address_range timer1_address = { timer0_address.end, timer0_address.end + sizeof(Timer_state) };
+    constexpr Address_range timer0_address_range = { 0xFFFF'FFFF'FFFF'0000, 0xFFFF'FFFF'FFFF'0000 + sizeof(Timer_state) };
+    constexpr Address_range timer1_address_range = { timer0_address_range.end, timer0_address_range.end + sizeof(Timer_state) };
 
     struct Peripherals
     {
-        Timer timer0{timer0_address.begin};
-        Timer timer1{timer1_address.begin};
+        Timer timer0{timer0_address_range.begin};
+        Timer timer1{timer1_address_range.begin};
 
         void update(Processor_state& state);
     };

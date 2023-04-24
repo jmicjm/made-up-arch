@@ -3,54 +3,12 @@
 #include "control_flow_instructions.h"
 #include "address_range.h"
 #include "common.h"
-#include "peripherals/peripherals.h"
+#include "rw_handlers.h"
 #include <optional>
-#include <map>
-
-#include <fstream>
 
 
 namespace emulator
 {
-    using Read_handler = void (*)(Processor_state& state, uint64_t address, uint8_t* dst, uint8_t size);
-    using Write_handler = void (*)(Processor_state& state, uint64_t address, uint8_t* src, uint8_t size);
-
-    inline std::map<Address_range, Read_handler> read_handlers = {
-        {
-            {0xFFFF0000, 0xFFFF0008},
-            [](Processor_state& state, uint64_t address, uint8_t* dst, uint8_t size) {//test handler
-                for(int i=0;i<size;i++) *dst++ = 42;
-            }
-        },
-        {
-            timer0_address,
-            [](Processor_state& state, auto... args) { state.peripherals.timer0.read(state, args...); }
-        },
-        {
-            timer1_address,
-            [](Processor_state& state, auto... args) { state.peripherals.timer1.read(state, args...); }
-        }
-    };
-
-    inline std::map<Address_range, Write_handler> write_handlers = {
-        {
-            {0xFFFF0008, 0xFFFF0010},
-            [](Processor_state& state, uint64_t address, uint8_t* src, uint8_t size) {//test handler
-                std::ofstream ofs{"test_mmap.txt", std::ios::app};
-                for (int i = 0; i < size; i++) ofs << *src++;
-            }
-        },
-        {
-            timer0_address,
-            [](Processor_state& state, auto... args) { state.peripherals.timer0.write(state, args...); }
-        },
-        {
-            timer1_address,
-            [](Processor_state& state, auto... args) { state.peripherals.timer1.write(state, args...); }
-        }
-    };
-
-
     template<typename T>
     std::optional<T> readMemory(Processor_state& state, uint64_t address)
     {
@@ -60,7 +18,7 @@ namespace emulator
         {
             return reinterpret_cast<Aliasable<T>&>(state.memory[address]);
         }
-        else if (auto it = read_handlers.find(range); it != read_handlers.end())
+        else if (auto it = Rw_handlers::read_handlers.find(range); it != Rw_handlers::read_handlers.end())
         {
            const auto& [handler_range, read_handler] = *it;
 
@@ -86,7 +44,7 @@ namespace emulator
             reinterpret_cast<Aliasable<T>&>(state.memory[address]) = data;
             return;
         }
-        else if (auto it = write_handlers.find(range); it != write_handlers.end())
+        else if (auto it = Rw_handlers::write_handlers.find(range); it != Rw_handlers::write_handlers.end())
         {
             const auto& [handler_range, write_handler] = *it;
 

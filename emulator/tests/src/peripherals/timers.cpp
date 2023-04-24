@@ -108,7 +108,7 @@ TEST(timers, timer0_count_backward_no_auto_reload)
 {
     testTimerBackward(
         [](Processor_state& ps) { return ps.peripherals.timer0; },
-        timer0_address.begin,
+        timer0_address_range.begin,
         false
     );
 }
@@ -117,7 +117,7 @@ TEST(timers, timer1_count_backward_no_auto_reload)
 {
     testTimerBackward(
         [](Processor_state& ps) { return ps.peripherals.timer1; },
-        timer1_address.begin,
+        timer1_address_range.begin,
         false
     );
 }
@@ -126,7 +126,7 @@ TEST(timers, timer0_count_backward_auto_reload)
 {
     testTimerBackward(
         [](Processor_state& ps) { return ps.peripherals.timer0; },
-        timer0_address.begin,
+        timer0_address_range.begin,
         true
     );
 }
@@ -135,7 +135,7 @@ TEST(timers, timer1_count_backward_auto_reload)
 {
     testTimerBackward(
         [](Processor_state& ps) { return ps.peripherals.timer1; },
-        timer1_address.begin,
+        timer1_address_range.begin,
         true
     );
 }
@@ -144,7 +144,7 @@ TEST(timers, timer0_count_forward_no_auto_reload)
 {
     testTimerForward(
         [](Processor_state& ps) { return ps.peripherals.timer0; },
-        timer0_address.begin,
+        timer0_address_range.begin,
         false
     );
 }
@@ -153,7 +153,7 @@ TEST(timers, timer1_count_forward_no_auto_reload)
 {
     testTimerForward(
         [](Processor_state& ps) { return ps.peripherals.timer1; },
-        timer1_address.begin,
+        timer1_address_range.begin,
         false
     );
 }
@@ -162,7 +162,7 @@ TEST(timers, timer0_count_forward_auto_reload)
 {
     testTimerForward(
         [](Processor_state& ps) { return ps.peripherals.timer0; },
-        timer0_address.begin,
+        timer0_address_range.begin,
         true
     );
 }
@@ -171,7 +171,7 @@ TEST(timers, timer1_count_forward_auto_reload)
 {
     testTimerForward(
         [](Processor_state& ps) { return ps.peripherals.timer1; },
-        timer1_address.begin,
+        timer1_address_range.begin,
         true
     );
 }
