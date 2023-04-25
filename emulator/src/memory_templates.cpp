@@ -45,7 +45,7 @@ namespace emulator
     std::vector<Instruction_t> nopHandler()
     {
         std::vector<Instruction_t> handler;
-        handler.push_back(toInstruction(Branch_absolute_instruction{ .link = 0, .condition = Branch_condition::always, .dst = Processor_state::link_register }));
+        handler.push_back(toInstruction(Branch_absolute_instruction{ .link = 0, .condition = Branch_condition::always, .restore_from_interrupt = 1 }));
 
         return handler;
     }

@@ -29,7 +29,7 @@ auto emulator::Processor_state::interruptVector() const -> const Interrupt_vecto
 void emulator::Processor_state::print() const
 {
     std::cout << "====PSW====\n";
-    std::cout << "----ZNVC\n";
+    std::cout << "---IZNVC\n";
     std::cout << std::bitset<sizeof(status_word) * 8>{ status_word } << "\n";
     std::cout << "====REGISTERS====\n";
     for (auto i = 0; i < registers.size(); i++)

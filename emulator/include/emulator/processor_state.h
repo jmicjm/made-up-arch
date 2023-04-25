@@ -19,10 +19,12 @@ namespace emulator
 
         struct [[gnu::may_alias]] Status_word
         {
-            uint8_t carry : 1;
-            uint8_t overflow : 1;
-            uint8_t negative : 1;
-            uint8_t zero : 1;
+            uint8_t carry : 1 = false;
+            uint8_t overflow : 1 = false;
+            uint8_t negative : 1 = false;
+            uint8_t zero : 1 = false;
+            uint8_t interrupt : 1 = false;
+            uint8_t reserved : 3 = 0;
         };
 
         uint8_t status_word = 0x0;

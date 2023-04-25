@@ -24,7 +24,7 @@ void emulator::Timer::update(Processor_state& proc_state)
             if (state.config_word.interrupt_enable)
             {
                 const auto interrupt_handler_address = proc_state.interruptVector().handlers[interrupt_idx];
-                branch(proc_state, interrupt_handler_address, true);
+                branchInterrupt(proc_state, interrupt_handler_address);
             }
         };
 

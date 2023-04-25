@@ -34,9 +34,9 @@ void emulator::Processor::executeNext()
         {    
             op(state, instruction);       
         }
-        else branch(state, state.interruptVector().handlers[Interrupts::invalid_opcode], true);
+        else branchInterrupt(state, state.interruptVector().handlers[Interrupts::invalid_opcode]);
     }
-    else branch(state, state.interruptVector().handlers[Interrupts::invalid_address], true);
+    else branchInterrupt(state, state.interruptVector().handlers[Interrupts::invalid_address]);
 
     state.peripherals.update(state);
 }

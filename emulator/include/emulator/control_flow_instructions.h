@@ -38,6 +38,7 @@ namespace emulator
         uint32_t opcode : opcode_size = Opcode::branch_absolute;
         uint32_t link : 1;
         uint32_t condition : 4;
+        uint32_t restore_from_interrupt : 1 = false;
         uint32_t dst : register_size;
     };
 
@@ -48,4 +49,5 @@ namespace emulator
     REGISTER_INSTRUCTION(Opcode::branch_absolute, branchAbsolute);
 
     void branch(Processor_state& state, uint64_t target_addr, bool link);
+    void branchInterrupt(Processor_state& state, uint64_t target_addr);
 }
