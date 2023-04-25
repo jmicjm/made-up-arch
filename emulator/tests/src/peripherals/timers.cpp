@@ -103,6 +103,67 @@ static void testTimerForward(auto&& timer, uint64_t timer_address, bool auto_rel
     EXPECT_EQ(timer(processor.state).state.config_word.enable, auto_reload);
 }
 
+static void testTimerBackwardInterrupt(auto&& timer, auto&& timer_interrupt, uint64_t timer_address)
+{
+    const auto timer_interrupt_address = 0xFF;
+    const auto timer_value = 255;
+    const auto timer_reset_value = timer_value;
+    Timer_state::Config_word timer_config;
+    timer_config.enable = true;
+    timer_config.mode = Timer_state::Mode::backward;
+    timer_config.interrupt_enable = true;
+
+    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address);
+
+    Processor processor{ memory };
+
+    timer_interrupt(processor.state) = timer_interrupt_address;
+
+    auto cycles_to_overflow = timer_value;
+    while (cycles_to_overflow > 0)
+    {
+        processor.executeNext();
+
+        if (processor.state.registers[Processor_state::program_counter] > counter_start_address) cycles_to_overflow--;
+    }
+
+    EXPECT_NE(processor.state.registers[Processor_state::program_counter], timer_interrupt_address);
+
+    processor.executeNext();
+
+    EXPECT_EQ(processor.state.registers[Processor_state::program_counter], timer_interrupt_address);
+}
+
+static void testTimerForwardInterrupt(auto&& timer, auto&& timer_interrupt, uint64_t timer_address)
+{
+    const auto timer_interrupt_address = 0xFF;
+    const auto timer_value = 0;
+    const auto timer_reset_value = 255;
+    Timer_state::Config_word timer_config;
+    timer_config.enable = true;
+    timer_config.mode = Timer_state::Mode::forward;
+    timer_config.interrupt_enable = true;
+
+    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address);
+
+    Processor processor{ memory };
+
+    timer_interrupt(processor.state) = timer_interrupt_address;
+
+    auto cycles_to_overflow = timer_reset_value - timer_value;
+    while (cycles_to_overflow > 0)
+    {
+        processor.executeNext();
+
+        if (processor.state.registers[Processor_state::program_counter] > counter_start_address) cycles_to_overflow--;
+    }
+
+    EXPECT_NE(processor.state.registers[Processor_state::program_counter], timer_interrupt_address);
+
+    processor.executeNext();
+
+    EXPECT_EQ(processor.state.registers[Processor_state::program_counter], timer_interrupt_address);
+}
 
 TEST(timers, timer0_count_backward_no_auto_reload)
 {
@@ -173,5 +234,41 @@ TEST(timers, timer1_count_forward_auto_reload)
         [](Processor_state& ps) { return ps.peripherals.timer1; },
         timer1_address_range.begin,
         true
+    );
+}
+
+TEST(timers, timer0_count_backward_interrupt)
+{
+    testTimerBackwardInterrupt(
+        [](Processor_state& ps) { return ps.peripherals.timer0; },
+        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().timer0; },
+        timer0_address_range.begin
+    );
+}
+
+TEST(timers, timer1_count_backward_interrupt)
+{
+    testTimerBackwardInterrupt(
+        [](Processor_state& ps) { return ps.peripherals.timer1; },
+        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().timer1; },
+        timer1_address_range.begin
+    );
+}
+
+TEST(timers, timer0_count_forward_interrupt)
+{
+    testTimerForwardInterrupt(
+        [](Processor_state& ps) { return ps.peripherals.timer0; },
+        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().timer0; },
+        timer0_address_range.begin
+    );
+}
+
+TEST(timers, timer1_count_forward_interrupt)
+{
+    testTimerForwardInterrupt(
+        [](Processor_state& ps) { return ps.peripherals.timer1; },
+        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().timer1; },
+        timer1_address_range.begin
     );
 }

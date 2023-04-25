@@ -12,13 +12,17 @@ namespace emulator
         const auto failure_handler = nopHandler();
 
         Interrupt_vector& int_vec = reinterpret_cast<Interrupt_vector&>(memory[0]);
-        int_vec.reset = sizeof(Interrupt_vector) + 2 * failure_handler.size() * sizeof(Instruction_t);
+        int_vec.reset = sizeof(Interrupt_vector) + 4 * failure_handler.size() * sizeof(Instruction_t);
         int_vec.invalid_opcode = sizeof(Interrupt_vector);
         int_vec.invalid_address = sizeof(Interrupt_vector) + failure_handler.size() * sizeof(Instruction_t);
+        int_vec.timer0 = sizeof(Interrupt_vector) + 2 * failure_handler.size() * sizeof(Instruction_t);
+        int_vec.timer1 = sizeof(Interrupt_vector) + 3 * failure_handler.size() * sizeof(Instruction_t);
 
 
         writeCode(memory, int_vec.invalid_opcode, failure_handler);
         writeCode(memory, int_vec.invalid_address, failure_handler);
+        writeCode(memory, int_vec.timer0, failure_handler);
+        writeCode(memory, int_vec.timer1, failure_handler);
         writeCode(memory, int_vec.reset, reset_handler);
 
 

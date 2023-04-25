@@ -1,12 +1,14 @@
 #include "peripherals/timer.h"
 #include "processor_state.h"
+#include "control_flow_instructions.h"
+#include "common.h"
 #include <limits>
 #include <cstring>
 
-#include <iostream>
 
-
-emulator::Timer::Timer(uint64_t address) : address{ address } {}
+emulator::Timer::Timer(uint64_t address, uint64_t interrupt_idx) 
+  : address{ address },
+    interrupt_idx{interrupt_idx} {}
 
 void emulator::Timer::update(Processor_state& proc_state)
 {
@@ -18,6 +20,12 @@ void emulator::Timer::update(Processor_state& proc_state)
         {
             state.config_word.overflow = true;
             if (!state.config_word.auto_reload) state.config_word.enable = false;
+
+            if (state.config_word.interrupt_enable)
+            {
+                const auto interrupt_handler_address = reinterpret_cast<Aliasable<uint64_t>*>(&proc_state.interruptVector())[interrupt_idx];
+                branch(proc_state, interrupt_handler_address, true);
+            }
         };
 
         switch (state.config_word.mode)
