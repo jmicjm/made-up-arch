@@ -30,7 +30,7 @@ namespace emulator
             }
         }
 
-        branch(state, state.interruptVector().invalid_address, true);
+        branch(state, state.interruptVector().handlers[Interrupts::invalid_address], true);
         return {};
     }
 
@@ -55,6 +55,6 @@ namespace emulator
             }
         }
 
-        branch(state, state.interruptVector().invalid_address, true);
+        branch(state, state.interruptVector().handlers[Interrupts::invalid_address], true);
     }
 }

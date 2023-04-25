@@ -1,5 +1,6 @@
 #pragma once
 #include "timer.h"
+#include "../interrupt_vector.h"
 #include "../address_range.h"
 #include <cstdint>
 
@@ -11,8 +12,8 @@ namespace emulator
 
     struct Peripherals
     {
-        Timer timer0{timer0_address_range.begin, 3};
-        Timer timer1{timer1_address_range.begin, 4};
+        Timer timer0{ timer0_address_range.begin, Interrupts::timer0 };
+        Timer timer1{ timer1_address_range.begin, Interrupts::timer1 };
 
         void update(Processor_state& state);
     };

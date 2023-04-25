@@ -37,7 +37,7 @@ TEST(interrupts, invalid_opcode)
 
     Processor processor{ memory };
 
-    processor.state.interruptVector().invalid_opcode = invalid_opcode_handler_addr;
+    processor.state.interruptVector().handlers[Interrupts::invalid_opcode] = invalid_opcode_handler_addr;
 
 
     while (processor.state.registers[Processor_state::program_counter] <= start_addr)
@@ -57,7 +57,7 @@ TEST(interrupts, invalid_address)
 
     Processor processor{ memory };
 
-    processor.state.interruptVector().invalid_address = invalid_address_handler_addr;
+    processor.state.interruptVector().handlers[Interrupts::invalid_address] = invalid_address_handler_addr;
 
 
     while (processor.state.registers[Processor_state::program_counter] <= start_addr)

@@ -16,12 +16,12 @@ auto emulator::Processor_state::pswFields() -> Status_word&
     return const_cast<Status_word&>(std::as_const(*this).pswFields());
 }
 
-Interrupt_vector& emulator::Processor_state::interruptVector()
+auto emulator::Processor_state::interruptVector() -> Interrupt_vector&
 {
     return const_cast<Interrupt_vector&>(std::as_const(*this).interruptVector());
 }
 
-const Interrupt_vector& emulator::Processor_state::interruptVector() const
+auto emulator::Processor_state::interruptVector() const -> const Interrupt_vector&
 {
     return reinterpret_cast<const Interrupt_vector&>(memory[0]);
 }

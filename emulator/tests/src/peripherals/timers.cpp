@@ -241,7 +241,7 @@ TEST(timers, timer0_count_backward_interrupt)
 {
     testTimerBackwardInterrupt(
         [](Processor_state& ps) { return ps.peripherals.timer0; },
-        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().timer0; },
+        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().handlers[Interrupts::timer0]; },
         timer0_address_range.begin
     );
 }
@@ -250,7 +250,7 @@ TEST(timers, timer1_count_backward_interrupt)
 {
     testTimerBackwardInterrupt(
         [](Processor_state& ps) { return ps.peripherals.timer1; },
-        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().timer1; },
+        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().handlers[Interrupts::timer1]; },
         timer1_address_range.begin
     );
 }
@@ -259,7 +259,7 @@ TEST(timers, timer0_count_forward_interrupt)
 {
     testTimerForwardInterrupt(
         [](Processor_state& ps) { return ps.peripherals.timer0; },
-        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().timer0; },
+        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().handlers[Interrupts::timer0]; },
         timer0_address_range.begin
     );
 }
@@ -268,7 +268,7 @@ TEST(timers, timer1_count_forward_interrupt)
 {
     testTimerForwardInterrupt(
         [](Processor_state& ps) { return ps.peripherals.timer1; },
-        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().timer1; },
+        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().handlers[Interrupts::timer1]; },
         timer1_address_range.begin
     );
 }

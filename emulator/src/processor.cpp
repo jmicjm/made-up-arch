@@ -19,7 +19,7 @@ void emulator::Processor::reset()
 {
     state.registers = Processor_state{}.registers;
     state.status_word = Processor_state{}.status_word;
-    state.registers[Processor_state::program_counter] = state.interruptVector().reset;
+    state.registers[Processor_state::program_counter] = state.interruptVector().handlers[Interrupts::reset];
 }
 
 void emulator::Processor::executeNext()
@@ -34,9 +34,9 @@ void emulator::Processor::executeNext()
         {    
             op(state, instruction);       
         }
-        else branch(state, state.interruptVector().invalid_opcode, true);
+        else branch(state, state.interruptVector().handlers[Interrupts::invalid_opcode], true);
     }
-    else branch(state, state.interruptVector().invalid_address, true);
+    else branch(state, state.interruptVector().handlers[Interrupts::invalid_address], true);
 
     state.peripherals.update(state);
 }
