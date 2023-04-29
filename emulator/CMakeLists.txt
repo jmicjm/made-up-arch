@@ -14,6 +14,7 @@ add_library (emulator
     "src/memory_templates.cpp"
     "src/peripherals/timer.cpp"
     "src/peripherals/peripherals.cpp"
+    "src/debugging/human_readable_instruction.cpp"
 )
 
 target_include_directories(emulator PRIVATE "include/emulator")

@@ -1,4 +1,5 @@
 #include "processor_state.h"
+#include "debugging/human_readable_instruction.h"
 #include "common.h"
 #include <iostream>
 #include <bitset>
@@ -35,7 +36,7 @@ void emulator::Processor_state::print() const
     for (auto i = 0; i < registers.size(); i++)
     {
         std::cout << "r" << std::setw(2) << std::left << std::setfill(' ') << std::dec <<  i << ": 0x"
-            << std::setw(16) << std::right << std::setfill('0') << std::hex << registers[i] << "\n";
+            << std::setw(16) << std::right << std::setfill('0') << std::hex << registers[i] << (i == program_counter ? " -> " + debugging::instructionToString(reinterpret_cast<const Instruction_t&>(memory[registers[i]])) : "") << "\n";
     }
 
     auto printTimer = [&](const Timer& timer, const std::string& name)

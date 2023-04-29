@@ -2,6 +2,7 @@
 #include "instruction.h"
 #include "processor_state.h"
 #include "instruction_registry.h"
+#include "debugging/human_readable_instruction.h"
 
 
 namespace emulator
@@ -24,7 +25,9 @@ namespace emulator
 
     void cmp(Processor_state& state, Instruction_t instruction);
     REGISTER_INSTRUCTION(Opcode::cmp, cmp)
+    REGISTER_INSTRUCTION_DESCRIBER_GENERIC(Opcode::cmp, "cmp", Comparison_instruction, Comparison_imm_instruction)
 
     void tst(Processor_state& state, Instruction_t instruction);
     REGISTER_INSTRUCTION(Opcode::tst, tst)
+    REGISTER_INSTRUCTION_DESCRIBER_GENERIC(Opcode::tst, "tst", Comparison_instruction, void)
 }
