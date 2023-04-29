@@ -103,6 +103,7 @@ namespace emulator
                 if constexpr (requires(T t) { t.rdst; }) return " r" + std::to_string(i.rdst);
                 else return "";
             };
+
             return std::string{ name } + rdst() + " r" + std::to_string(i.r1) + " r" + std::to_string(i.r2);
         }
 
@@ -115,6 +116,7 @@ namespace emulator
                 if constexpr (requires(T t) { t.rdst; }) return " r" + std::to_string(i.rdst);
                 else return "";
             };
+
             std::string desc = std::string{ name } + rdst() + " r" + std::to_string(i.r1) + " ";
             if (!i.imm_arg) desc += "r" + std::to_string(i.r2);
             else desc += std::to_string(instruction_cast<Y>(i).imm);
@@ -130,7 +132,14 @@ namespace emulator
                 if constexpr (requires(T t) { t.rsrc; }) return i.rsrc;
                 else return i.rdst;
             };
-            return std::string{ name } + std::to_string(1 << i.size) + " [r" + std::to_string(i.rbase) + " + " + std::to_string(i.off) + "] r" + std::to_string(sd());
+
+            auto ext = [&]
+            {
+                if constexpr (requires(T t) { t.sign_extend; }) return i.sign_extend ? "e" : "";
+                else return "";
+            };
+
+            return std::string{ name } + std::to_string(1 << i.size) + ext() + " r" + std::to_string(sd()) + " [r" + std::to_string(i.rbase) + " + " + std::to_string(i.off) + "]";
         }
 
         template<Stack_transfer_instruction T>
@@ -141,7 +150,14 @@ namespace emulator
                 if constexpr (requires(T t) { t.rsrc; }) return i.rsrc;
                 else return i.rdst;
             };
-            return std::string{ name } + std::to_string(1 << i.size) + " r" + std::to_string(sd());
+
+            auto ext = [&]
+            {
+                if constexpr (requires(T t) { t.sign_extend; }) return i.sign_extend ? "e" : "";
+                else return "";
+            };
+
+            return std::string{ name } + std::to_string(1 << i.size) + ext() + " r" + std::to_string(sd());
         }
 
         template<typename main_instr_t, typename opt_instr_t = void>

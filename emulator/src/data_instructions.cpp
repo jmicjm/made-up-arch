@@ -1,6 +1,7 @@
 #include "data_instructions.h"
 #include "memory_bus.h"
 #include "control_flow_instructions.h"
+#include <type_traits>
 
 
 namespace emulator
@@ -21,22 +22,22 @@ namespace emulator
     }
 
 
-    template<template<typename> typename f>
+    template<template<typename> typename f, template<typename> typename type_projection = std::type_identity_t>
     void dispatchByDataType(uint8_t data_type, auto&&... args)
     {
         switch (data_type)
         {
         case Data_type::byte:
-            f<uint8_t>{}(args...);
+            f<type_projection<uint8_t>>{}(args...);
             break;
         case Data_type::doublebyte:
-            f<uint16_t>{}(args...);
+            f<type_projection<uint16_t>>{}(args...);
             break;
         case Data_type::quadbyte:
-            f<uint32_t>{}(args...);
+            f<type_projection<uint32_t>>{}(args...);
             break;
         case Data_type::octobyte:
-            f<uint64_t>{}(args...);
+            f<type_projection<uint64_t>>{}(args...);
         }
     }
     
@@ -57,7 +58,8 @@ namespace emulator
         const auto instr = instruction_cast<Ldr_instruction>(instruction);
         const uint64_t addr = state.registers[instr.rbase] + instr.off;
 
-        dispatchByDataType<Load_register>(instr.size, state, instr.rdst, addr);
+        if (instr.sign_extend) dispatchByDataType<Load_register, std::make_signed_t>(instr.size, state, instr.rdst, addr);
+        else dispatchByDataType<Load_register>(instr.size, state, instr.rdst, addr);
     }
 
 
@@ -92,7 +94,7 @@ namespace emulator
     {
         const auto instr = instruction_cast<Pop_instruction>(instruction);
 
-        ldr(state, toInstruction(Ldr_instruction{ .size = instr.size, .rdst = instr.rdst, .rbase = Processor_state::stack_pointer, .off = 0 }));
+        ldr(state, toInstruction(Ldr_instruction{ .size = instr.size, .sign_extend = instr.sign_extend, .rdst = instr.rdst, .rbase = Processor_state::stack_pointer, .off = 0 }));
 
         state.registers[Processor_state::stack_pointer] += 1ull << instr.size;
     }

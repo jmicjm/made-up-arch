@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include <cstdint>
+#include <type_traits>
 
 
 using namespace emulator;
@@ -140,7 +141,7 @@ static void ldrTest(uint8_t data_type, T memory_val, std::vector<std::pair<int32
                 Processor processor{ memory_size };
                 processor.state.registers[Processor_state::program_counter] = instruction_addr;
                 processor.state.registers[rbase] = base;
-                reinterpret_cast<Instruction_t&>(processor.state.memory[instruction_addr]) = toInstruction(Ldr_instruction{ .size = data_type, .rdst = rdst, .rbase = rbase, .off = offset });
+                reinterpret_cast<Instruction_t&>(processor.state.memory[instruction_addr]) = toInstruction(Ldr_instruction{ .size = data_type, .sign_extend = std::is_signed_v<T>, .rdst = rdst, .rbase = rbase, .off = offset });
                 reinterpret_cast<T&>(processor.state.memory[data_addr]) = memory_val;
 
                 processor.executeNext();
@@ -242,7 +243,7 @@ static void popTest(uint8_t data_type, T memory_val, std::vector<uint64_t> sp_va
             processor.state.registers[Processor_state::program_counter] = instruction_addr;
             processor.state.registers[Processor_state::stack_pointer] = sp;
             reinterpret_cast<T&>(processor.state.memory[sp]) = memory_val;
-            reinterpret_cast<Instruction_t&>(processor.state.memory[instruction_addr]) = toInstruction(Pop_instruction{ .size = data_type, .rdst = rdst });
+            reinterpret_cast<Instruction_t&>(processor.state.memory[instruction_addr]) = toInstruction(Pop_instruction{ .size = data_type, .sign_extend = std::is_signed_v<T>, .rdst = rdst });
 
             processor.executeNext();
 

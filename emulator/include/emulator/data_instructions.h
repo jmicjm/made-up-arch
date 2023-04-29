@@ -32,9 +32,10 @@ namespace emulator
     {
         uint32_t opcode : opcode_size = Opcode::ldr;
         uint32_t size : data_type_size = Data_type::octobyte;
+        uint32_t sign_extend : 1 = false;
         uint32_t rdst : register_size;
         uint32_t rbase : register_size;
-        int32_t off : 14;
+        int32_t off : 13;
     };
 
     void ldr(Processor_state& state, Instruction_t instruction);
@@ -70,6 +71,7 @@ namespace emulator
     {
         uint32_t opcode : opcode_size = Opcode::pop;
         uint32_t size : data_type_size = Data_type::octobyte;
+        uint32_t sign_extend : 1 = false;
         uint32_t rdst : register_size;
     };
 

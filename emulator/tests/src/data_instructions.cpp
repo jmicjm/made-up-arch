@@ -58,6 +58,21 @@ TEST(data_instructions, ldr_byte)
     ldrTest<uint8_t>(Data_type::byte, 0x88, { {0,0}, {4,16}, {32,-8}, {-8,32} });
 }
 
+TEST(data_instructions, ldr_quadbyte_extend)
+{
+    ldrTest<int32_t>(Data_type::quadbyte, 0x80000000, { {0,0}, {4,16}, {32,-8}, {-8,32} });
+}
+
+TEST(data_instructions, ldr_doublebyte_extend)
+{
+    ldrTest<int16_t>(Data_type::doublebyte, 0x8000, { {0,0}, {4,16}, {32,-8}, {-8,32} });
+}
+
+TEST(data_instructions, ldr_byte_extend)
+{
+    ldrTest<int8_t>(Data_type::byte, 0x80, { {0,0}, {4,16}, {32,-8}, {-8,32} });
+}
+
 TEST(data_instructions, ldr_octobyte_pc_relative)
 {
     ldrTestPcRelative<uint64_t>(Data_type::octobyte, 0xFFEEDDCCBBAA9988, { -32, 0, 32 });
@@ -136,4 +151,19 @@ TEST(data_instructions, pop_doublebyte)
 TEST(data_instructions, pop_byte)
 {
     popTest<uint8_t>(Data_type::byte, 0x88, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, pop_quadbyte_extend)
+{
+    popTest<int32_t>(Data_type::quadbyte, 0x80000000, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, pop_doublebyte_extend)
+{
+    popTest<int16_t>(Data_type::doublebyte, 0x8000, { 0xFF, 0x100 });
+}
+
+TEST(data_instructions, pop_byte_extend)
+{
+    popTest<int8_t>(Data_type::byte, 0x80, { 0xFF, 0x100 });
 }
