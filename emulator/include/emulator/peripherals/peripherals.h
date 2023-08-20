@@ -12,8 +12,8 @@ namespace emulator
 
     struct Peripherals
     {
-        Timer timer0{ timer0_address_range.begin, Interrupts::timer0 };
-        Timer timer1{ timer1_address_range.begin, Interrupts::timer1 };
+        Timer timer0{ Interrupts::timer0 };
+        Timer timer1{ Interrupts::timer1 };
 
         void update(Processor_state& state);
     };

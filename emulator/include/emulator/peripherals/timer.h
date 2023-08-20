@@ -31,17 +31,16 @@ namespace emulator
 
     class Timer
     {
-        uint64_t address;
         uint64_t interrupt_idx;
 
     public:
         Timer_state state;
 
-        Timer(uint64_t address, uint64_t interrupt_idx);
+        Timer(uint64_t interrupt_idx);
 
         void update(Processor_state& state);
 
-        bool read(Processor_state& state, uint64_t address, uint8_t* dst, uint8_t size) const;
-        bool write(Processor_state& state, uint64_t address, uint8_t* src, uint8_t size);
+        bool read(Processor_state& state, uint64_t offset, uint8_t* dst, uint8_t size) const;
+        bool write(Processor_state& state, uint64_t offset, uint8_t* src, uint8_t size);
     };
 }

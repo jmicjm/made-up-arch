@@ -25,7 +25,7 @@ namespace emulator
             if (handler_range.contains(range))
             {
                 T buf{};
-                read_handler(state, address, reinterpret_cast<uint8_t*>(&buf), sizeof(T));
+                read_handler(state, address - handler_range.begin, reinterpret_cast<uint8_t*>(&buf), sizeof(T));
                 return buf;
             }
         }
@@ -50,7 +50,7 @@ namespace emulator
 
             if (handler_range.contains(range))
             {
-                write_handler(state, address, reinterpret_cast<uint8_t*>(&data), sizeof(T));
+                write_handler(state, address - handler_range.begin, reinterpret_cast<uint8_t*>(&data), sizeof(T));
                 return;
             }
         }

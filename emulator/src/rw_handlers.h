@@ -8,8 +8,8 @@
 
 namespace emulator
 {
-    using Read_handler = void (*)(Processor_state& state, uint64_t address, uint8_t* dst, uint8_t size);
-    using Write_handler = void (*)(Processor_state& state, uint64_t address, uint8_t* src, uint8_t size);
+    using Read_handler = void (*)(Processor_state& state, uint64_t offset, uint8_t* dst, uint8_t size);
+    using Write_handler = void (*)(Processor_state& state, uint64_t offset, uint8_t* src, uint8_t size);
 
     class Rw_handlers
     {

@@ -6,9 +6,8 @@
 #include <cstring>
 
 
-emulator::Timer::Timer(uint64_t address, uint64_t interrupt_idx) 
-  : address{ address },
-    interrupt_idx{interrupt_idx} {}
+emulator::Timer::Timer(uint64_t interrupt_idx) 
+    : interrupt_idx{interrupt_idx} {}
 
 void emulator::Timer::update(Processor_state& proc_state)
 {
@@ -49,22 +48,18 @@ void emulator::Timer::update(Processor_state& proc_state)
     }
 }
 
-bool emulator::Timer::read(Processor_state& state, uint64_t address, uint8_t* dst, uint8_t size) const
+bool emulator::Timer::read(Processor_state& state, uint64_t offset, uint8_t* dst, uint8_t size) const
 {
-    const auto offset = address - this->address;
-
-    if (address < this->address || offset + size > sizeof(Timer_state)) return false;
+    if (offset + size > sizeof(Timer_state)) return false;
 
     std::memcpy(dst, reinterpret_cast<const uint8_t*>(&this->state) + offset, size);
 
     return true;
 }
 
-bool emulator::Timer::write(Processor_state& state, uint64_t address, uint8_t* src, uint8_t size)
+bool emulator::Timer::write(Processor_state& state, uint64_t offset, uint8_t* src, uint8_t size)
 {
-    const auto offset = address - this->address;
-
-    if (address < this->address || offset + size > sizeof(Timer_state)) return false;
+    if (offset + size > sizeof(Timer_state)) return false;
 
     std::memcpy(reinterpret_cast<uint8_t*>(&this->state) + offset, src, size);
 
