@@ -4,13 +4,13 @@
 #include <utility>
 
 
-emulator::Processor::Processor(std::vector<uint8_t> memory)
+emulator::Processor::Processor(std::vector<uint8_t> memory) : decoder(Instruction_registry::getInstructions())
 {
     state.memory = std::move(memory);
     reset();
 }
 
-emulator::Processor::Processor(size_t memory_size)
+emulator::Processor::Processor(size_t memory_size) : decoder(Instruction_registry::getInstructions())
 {
     state.memory.resize(memory_size);
 }

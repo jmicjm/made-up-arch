@@ -1,12 +1,11 @@
 #include "instruction_decoder.h"
 #include "instructions.h"
 #include "instruction.h"
-#include "instruction_registry.h"
 
 
-emulator::Instruction_decoder::Instruction_decoder() : instructions(1 << opcode_size, nullptr)
+emulator::Instruction_decoder::Instruction_decoder(const Instruction_map& inst) : instructions(1 << opcode_size, nullptr)
 {
-    for (const auto& [opcode, instr] : Instruction_registry::instructions)
+    for (const auto& [opcode, instr] : inst)
     {
         if (opcode < instructions.size()) instructions[opcode] = instr;
     }

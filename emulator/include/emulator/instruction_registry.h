@@ -1,18 +1,19 @@
 #pragma once
 #include "processor_state.h"
 #include "instruction.h"
-#include <unordered_map>
+#include "instruction_decoder.h"
 
 
 namespace emulator
 {
     class Instruction_registry
     {
-        friend class Instruction_decoder;
         template<Instruction_t>
         friend class Register_instruction;
 
-        static inline std::unordered_map<Instruction_t, void (*)(Processor_state&, Instruction_t)> instructions;
+        static inline Instruction_map instructions;
+    public:
+        static const Instruction_map& getInstructions() { return instructions; }
     };
 
     template<Instruction_t opcode>
