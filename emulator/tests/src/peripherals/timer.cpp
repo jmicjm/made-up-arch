@@ -4,6 +4,7 @@
 #include "emulator/memory_templates.h"
 #include "emulator/memory_helpers.h"
 #include "emulator/common.h"
+#include "emulator/peripherals/timer.h"
 #include <vector>
 #include <utility>
 #include <cstdint>
@@ -40,18 +41,23 @@ static std::pair<std::vector<uint8_t>, uint64_t> prepareTimerCpuMemory(uint64_t 
     return { std::move(memory), start_addr + 6 * sizeof(Instruction_t) };
 }
 
-static void testTimerBackward(auto&& timer, uint64_t timer_address, bool auto_reload)
+static void testTimerBackward(bool auto_reload)
 {
     const auto timer_value = 255;
     const auto timer_reset_value = timer_value;
+    auto timer_address_range = Address_range{ 0xFFFF'FFFF'FFFF'0000, 0xFFFF'FFFF'FFFF'0000 + sizeof(Timer_state) };
+
     Timer_state::Config_word timer_config;
     timer_config.enable = true;
     timer_config.auto_reload = auto_reload;
     timer_config.mode = Timer_state::Mode::backward;
 
-    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address);
+    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address_range.begin);
 
     Processor processor{ memory };
+
+    auto timer = std::make_shared<Timer>(Interrupts::timer);
+    processor.state.system_bus.addPeripheral(timer, timer_address_range, timer_address_range);
 
     auto cycles_to_overflow = timer_value;
     while (cycles_to_overflow > 0)
@@ -61,29 +67,33 @@ static void testTimerBackward(auto&& timer, uint64_t timer_address, bool auto_re
         if (processor.state.registers[Processor_state::program_counter] > counter_start_address) cycles_to_overflow--;
     }
 
-    EXPECT_EQ(timer(processor.state).state.config_word.overflow, false);
-    EXPECT_EQ(timer(processor.state).state.value, 0);
+    EXPECT_EQ(timer->state.config_word.overflow, false);
+    EXPECT_EQ(timer->state.value, 0);
 
     processor.executeNext();
 
-    EXPECT_EQ(timer(processor.state).state.config_word.overflow, true);
-    EXPECT_EQ(timer(processor.state).state.value, timer_reset_value);
-    EXPECT_EQ(timer(processor.state).state.config_word.enable, auto_reload);
+    EXPECT_EQ(timer->state.config_word.overflow, true);
+    EXPECT_EQ(timer->state.value, timer_reset_value);
+    EXPECT_EQ(timer->state.config_word.enable, auto_reload);
 }
 
-static void testTimerForward(auto&& timer, uint64_t timer_address, bool auto_reload)
+static void testTimerForward(bool auto_reload)
 {
     const auto timer_value = 0;
     const auto timer_reset_value = 255;
+    auto timer_address_range = Address_range{ 0xFFFF'FFFF'FFFF'0000, 0xFFFF'FFFF'FFFF'0000 + sizeof(Timer_state) };
+
     Timer_state::Config_word timer_config;
     timer_config.enable = true;
     timer_config.auto_reload = auto_reload;
     timer_config.mode = Timer_state::Mode::forward;
 
-    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address);
+    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address_range.begin);
 
     Processor processor{ memory };
 
+    auto timer = std::make_shared<Timer>(Interrupts::timer);
+    processor.state.system_bus.addPeripheral(timer, timer_address_range, timer_address_range);
 
     auto cycles_to_overflow = timer_reset_value - timer_value;
     while (cycles_to_overflow > 0)
@@ -93,31 +103,36 @@ static void testTimerForward(auto&& timer, uint64_t timer_address, bool auto_rel
         if (processor.state.registers[Processor_state::program_counter] > counter_start_address) cycles_to_overflow--;
     }
 
-    EXPECT_EQ(timer(processor.state).state.config_word.overflow, false);
-    EXPECT_EQ(timer(processor.state).state.value, timer_reset_value);
+    EXPECT_EQ(timer->state.config_word.overflow, false);
+    EXPECT_EQ(timer->state.value, timer_reset_value);
 
     processor.executeNext();
 
-    EXPECT_EQ(timer(processor.state).state.config_word.overflow, true);
-    EXPECT_EQ(timer(processor.state).state.value, 0);
-    EXPECT_EQ(timer(processor.state).state.config_word.enable, auto_reload);
+    EXPECT_EQ(timer->state.config_word.overflow, true);
+    EXPECT_EQ(timer->state.value, 0);
+    EXPECT_EQ(timer->state.config_word.enable, auto_reload);
 }
 
-static void testTimerBackwardInterrupt(auto&& timer, auto&& timer_interrupt, uint64_t timer_address)
+static void testTimerBackwardInterrupt()
 {
     const auto timer_interrupt_address = 0xFF;
     const auto timer_value = 255;
     const auto timer_reset_value = timer_value;
+    auto timer_address_range = Address_range{ 0xFFFF'FFFF'FFFF'0000, 0xFFFF'FFFF'FFFF'0000 + sizeof(Timer_state) };
+
     Timer_state::Config_word timer_config;
     timer_config.enable = true;
     timer_config.mode = Timer_state::Mode::backward;
     timer_config.interrupt_enable = true;
 
-    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address);
+    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address_range.begin);
 
     Processor processor{ memory };
 
-    timer_interrupt(processor.state) = timer_interrupt_address;
+    auto timer = std::make_shared<Timer>(Interrupts::timer);
+    processor.state.system_bus.addPeripheral(timer, timer_address_range, timer_address_range);
+
+    processor.state.interruptVector().handlers[Interrupts::timer] = timer_interrupt_address;
 
     auto cycles_to_overflow = timer_value;
     while (cycles_to_overflow > 0)
@@ -134,21 +149,26 @@ static void testTimerBackwardInterrupt(auto&& timer, auto&& timer_interrupt, uin
     EXPECT_EQ(processor.state.registers[Processor_state::program_counter], timer_interrupt_address);
 }
 
-static void testTimerForwardInterrupt(auto&& timer, auto&& timer_interrupt, uint64_t timer_address)
+static void testTimerForwardInterrupt()
 {
     const auto timer_interrupt_address = 0xFF;
     const auto timer_value = 0;
     const auto timer_reset_value = 255;
+    auto timer_address_range = Address_range{ 0xFFFF'FFFF'FFFF'0000, 0xFFFF'FFFF'FFFF'0000 + sizeof(Timer_state) };
+
     Timer_state::Config_word timer_config;
     timer_config.enable = true;
     timer_config.mode = Timer_state::Mode::forward;
     timer_config.interrupt_enable = true;
 
-    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address);
+    auto [memory, counter_start_address] = prepareTimerCpuMemory(timer_value, timer_reset_value, timer_config, timer_address_range.begin);
 
     Processor processor{ memory };
 
-    timer_interrupt(processor.state) = timer_interrupt_address;
+    auto timer = std::make_shared<Timer>(Interrupts::timer);
+    processor.state.system_bus.addPeripheral(timer, timer_address_range, timer_address_range);
+
+    processor.state.interruptVector().handlers[Interrupts::timer] = timer_interrupt_address;
 
     auto cycles_to_overflow = timer_reset_value - timer_value;
     while (cycles_to_overflow > 0)
@@ -165,110 +185,32 @@ static void testTimerForwardInterrupt(auto&& timer, auto&& timer_interrupt, uint
     EXPECT_EQ(processor.state.registers[Processor_state::program_counter], timer_interrupt_address);
 }
 
-TEST(timers, timer0_count_backward_no_auto_reload)
+TEST(timer, count_backward_no_auto_reload)
 {
-    testTimerBackward(
-        [](Processor_state& ps) { return ps.peripherals.timer0; },
-        timer0_address_range.begin,
-        false
-    );
+    testTimerBackward(false);
 }
 
-TEST(timers, timer1_count_backward_no_auto_reload)
+TEST(timer, count_backward_auto_reload)
 {
-    testTimerBackward(
-        [](Processor_state& ps) { return ps.peripherals.timer1; },
-        timer1_address_range.begin,
-        false
-    );
+    testTimerBackward(true);
 }
 
-TEST(timers, timer0_count_backward_auto_reload)
+TEST(timer, count_forward_no_auto_reload)
 {
-    testTimerBackward(
-        [](Processor_state& ps) { return ps.peripherals.timer0; },
-        timer0_address_range.begin,
-        true
-    );
+    testTimerForward(false);
 }
 
-TEST(timers, timer1_count_backward_auto_reload)
+TEST(timer, count_forward_auto_reload)
 {
-    testTimerBackward(
-        [](Processor_state& ps) { return ps.peripherals.timer1; },
-        timer1_address_range.begin,
-        true
-    );
+    testTimerForward(true);
 }
 
-TEST(timers, timer0_count_forward_no_auto_reload)
+TEST(timer, count_backward_interrupt)
 {
-    testTimerForward(
-        [](Processor_state& ps) { return ps.peripherals.timer0; },
-        timer0_address_range.begin,
-        false
-    );
+    testTimerBackwardInterrupt();
 }
 
-TEST(timers, timer1_count_forward_no_auto_reload)
+TEST(timer, count_forward_interrupt)
 {
-    testTimerForward(
-        [](Processor_state& ps) { return ps.peripherals.timer1; },
-        timer1_address_range.begin,
-        false
-    );
-}
-
-TEST(timers, timer0_count_forward_auto_reload)
-{
-    testTimerForward(
-        [](Processor_state& ps) { return ps.peripherals.timer0; },
-        timer0_address_range.begin,
-        true
-    );
-}
-
-TEST(timers, timer1_count_forward_auto_reload)
-{
-    testTimerForward(
-        [](Processor_state& ps) { return ps.peripherals.timer1; },
-        timer1_address_range.begin,
-        true
-    );
-}
-
-TEST(timers, timer0_count_backward_interrupt)
-{
-    testTimerBackwardInterrupt(
-        [](Processor_state& ps) { return ps.peripherals.timer0; },
-        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().handlers[Interrupts::timer0]; },
-        timer0_address_range.begin
-    );
-}
-
-TEST(timers, timer1_count_backward_interrupt)
-{
-    testTimerBackwardInterrupt(
-        [](Processor_state& ps) { return ps.peripherals.timer1; },
-        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().handlers[Interrupts::timer1]; },
-        timer1_address_range.begin
-    );
-}
-
-TEST(timers, timer0_count_forward_interrupt)
-{
-    testTimerForwardInterrupt(
-        [](Processor_state& ps) { return ps.peripherals.timer0; },
-        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().handlers[Interrupts::timer0]; },
-        timer0_address_range.begin
-    );
-}
-
-TEST(timers, timer1_count_forward_interrupt)
-{
-    testTimerForwardInterrupt(
-        [](Processor_state& ps) { return ps.peripherals.timer1; },
-        [](Processor_state& ps) -> uint64_t& { return ps.interruptVector().handlers[Interrupts::timer1]; },
-        timer1_address_range.begin
-    );
+    testTimerForwardInterrupt();
 }

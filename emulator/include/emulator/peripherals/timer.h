@@ -1,5 +1,6 @@
 #pragma once
 #include "../processor_state.fwd.h"
+#include "peripheral.h"
 #include <cstdint>
 
 
@@ -29,7 +30,7 @@ namespace emulator
         } config_word;
     };
 
-    class Timer
+    class Timer : public Peripheral
     {
         uint64_t interrupt_idx;
 
@@ -41,6 +42,6 @@ namespace emulator
         void update(Processor_state& state);
 
         bool read(Processor_state& state, uint64_t offset, uint8_t* dst, uint8_t size) const;
-        bool write(Processor_state& state, uint64_t offset, uint8_t* src, uint8_t size);
+        bool write(Processor_state& state, uint64_t offset, const uint8_t* src, uint8_t size);
     };
 }

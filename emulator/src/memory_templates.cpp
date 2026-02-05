@@ -15,14 +15,11 @@ namespace emulator
         int_vec.handlers[Interrupts::reset] = sizeof(Interrupt_vector) + 4 * failure_handler.size() * sizeof(Instruction_t);
         int_vec.handlers[Interrupts::invalid_opcode] = sizeof(Interrupt_vector);
         int_vec.handlers[Interrupts::invalid_address] = sizeof(Interrupt_vector) + failure_handler.size() * sizeof(Instruction_t);
-        int_vec.handlers[Interrupts::timer0] = sizeof(Interrupt_vector) + 2 * failure_handler.size() * sizeof(Instruction_t);
-        int_vec.handlers[Interrupts::timer1] = sizeof(Interrupt_vector) + 3 * failure_handler.size() * sizeof(Instruction_t);
-
+        int_vec.handlers[Interrupts::timer] = sizeof(Interrupt_vector) + 2 * failure_handler.size() * sizeof(Instruction_t);
 
         writeCode(memory, int_vec.handlers[Interrupts::invalid_opcode], failure_handler);
         writeCode(memory, int_vec.handlers[Interrupts::invalid_address], failure_handler);
-        writeCode(memory, int_vec.handlers[Interrupts::timer0], failure_handler);
-        writeCode(memory, int_vec.handlers[Interrupts::timer1], failure_handler);
+        writeCode(memory, int_vec.handlers[Interrupts::timer], failure_handler);
         writeCode(memory, int_vec.handlers[Interrupts::reset], reset_handler);
 
 

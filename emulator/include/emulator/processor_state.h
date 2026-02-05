@@ -1,6 +1,6 @@
 #pragma once
 #include "interrupt_vector.h"
-#include "peripherals/peripherals.h"
+#include "system_bus.h"
 #include <cstdint>
 #include <array>
 #include <vector>
@@ -30,8 +30,7 @@ namespace emulator
         uint8_t status_word = 0x0;
         std::array<uint64_t, register_count> registers{};
         std::vector<uint8_t> memory;
-        Peripherals peripherals;
-
+        System_bus system_bus;
 
         Status_word& pswFields();
         const Status_word& pswFields() const;

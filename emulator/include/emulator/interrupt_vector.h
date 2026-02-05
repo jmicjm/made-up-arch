@@ -9,8 +9,7 @@ namespace emulator
         reset,
         invalid_opcode,
         invalid_address,
-        timer0,
-        timer1
+        timer
     };
 
     struct [[gnu::may_alias]] Interrupt_vector

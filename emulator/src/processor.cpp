@@ -38,5 +38,5 @@ void emulator::Processor::executeNext()
     }
     else branchInterrupt(state, state.interruptVector().handlers[Interrupts::invalid_address]);
 
-    state.peripherals.update(state);
+    state.system_bus.update(state);
 }

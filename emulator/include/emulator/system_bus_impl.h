@@ -1,16 +1,16 @@
 #pragma once
 #include "processor_state.h"
+#include "system_bus.h"
 #include "control_flow_instructions.h"
 #include "address_range.h"
 #include "common.h"
-#include "rw_handlers.h"
 #include <optional>
 
 
 namespace emulator
 {
     template<typename T>
-    std::optional<T> readMemory(Processor_state& state, uint64_t address)
+    std::optional<T> System_bus::readMemory(Processor_state& state, uint64_t address)
     {
         const Address_range range = { address, address + sizeof(T) };
 
@@ -18,7 +18,7 @@ namespace emulator
         {
             return reinterpret_cast<Aliasable<T>&>(state.memory[address]);
         }
-        else if (auto it = Rw_handlers::read_handlers.find(range); it != Rw_handlers::read_handlers.end())
+        else if (auto it = read_handlers.find(range); it != read_handlers.end())
         {
            const auto& [handler_range, read_handler] = *it;
 
@@ -35,7 +35,7 @@ namespace emulator
     }
 
     template<typename T>
-    void writeMemory(Processor_state& state, uint64_t address, T data)
+    void System_bus::writeMemory(Processor_state& state, uint64_t address, T data)
     {
         const Address_range range = { address, address + sizeof(T) };
 
@@ -44,13 +44,13 @@ namespace emulator
             reinterpret_cast<Aliasable<T>&>(state.memory[address]) = data;
             return;
         }
-        else if (auto it = Rw_handlers::write_handlers.find(range); it != Rw_handlers::write_handlers.end())
+        else if (auto it = write_handlers.find(range); it != write_handlers.end())
         {
             const auto& [handler_range, write_handler] = *it;
 
             if (handler_range.contains(range))
             {
-                write_handler(state, address - handler_range.begin, reinterpret_cast<uint8_t*>(&data), sizeof(T));
+                write_handler(state, address - handler_range.begin, reinterpret_cast<const uint8_t*>(&data), sizeof(T));
                 return;
             }
         }

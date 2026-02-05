@@ -15,18 +15,17 @@ simple made-up cpu emulator
     - branch (based on flags; pc relative and absolute; with link option) 
     - cmp (with imm variant)
     - tst
-- rudimentary interrupts:
+- rudimentary exceptions and interrupts:
     - reset handler
     - invalid opcode
     - invalid address
-    - timer0
-    - timer1
+    - timer
 - memory mapped i/o
 - peripherals:
-    - two 64bit timers
+    - timer
 
 ## Example
-Following test case from project source shows writing code that calculates popcount to memory and its execution.
+Following test case from project source shows writing code that calculates popcount and its execution.
 
 ```cpp
 TEST(simple_sequences_tests, popcount)

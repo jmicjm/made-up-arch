@@ -57,7 +57,7 @@ bool emulator::Timer::read(Processor_state& state, uint64_t offset, uint8_t* dst
     return true;
 }
 
-bool emulator::Timer::write(Processor_state& state, uint64_t offset, uint8_t* src, uint8_t size)
+bool emulator::Timer::write(Processor_state& state, uint64_t offset, const uint8_t* src, uint8_t size)
 {
     if (offset + size > sizeof(Timer_state)) return false;
 

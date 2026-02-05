@@ -1,5 +1,5 @@
 #include "data_instructions.h"
-#include "memory_bus.h"
+#include "system_bus_impl.h"
 #include "control_flow_instructions.h"
 #include <type_traits>
 
@@ -46,7 +46,7 @@ namespace emulator
     {    
         void operator()(Processor_state& state, uint8_t reg, uint64_t address)
         {
-            if (auto mem = readMemory<T>(state, address))
+            if (auto mem = state.system_bus.readMemory<T>(state, address))
             {
                 state.registers[reg] = *mem;
             }
@@ -68,7 +68,7 @@ namespace emulator
     {
         void operator()(Processor_state& state, uint8_t reg, uint64_t address)
         {
-            writeMemory<T>(state, address, state.registers[reg]);
+            state.system_bus.writeMemory<T>(state, address, state.registers[reg]);
         };
     };
 
